@@ -29,7 +29,7 @@ export default function PlushiePage() {
 
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
-    let filtered = featuredPlushies.filter((plushie) => {
+    const filtered = featuredPlushies.filter((plushie) => {
       const matchesSearch = plushie.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            plushie.character.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            plushie.series.toLowerCase().includes(searchTerm.toLowerCase())
@@ -197,10 +197,10 @@ export default function PlushiePage() {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-pink-500 focus:border-transparent"
               >
                 <option value="all">All Sizes</option>
-                <option value="mini">Mini (≤6")</option>
-                <option value="small">Small (6-10")</option>
-                <option value="medium">Medium (10-14")</option>
-                <option value="large">Large (≥14")</option>
+                <option value="mini">Mini (≤6)</option>
+                <option value="small">Small (6-10)</option>
+                <option value="medium">Medium (10-14)</option>
+                <option value="large">Large (≥14)</option>
               </select>
             </div>
 

@@ -87,7 +87,7 @@ export default function AboutPage() {
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
             Your ultimate destination for authentic anime figures, adorable
-            plushies, and manga collections. We're passionate otakus bringing
+            plushies, and manga collections. We&apos;re passionate otakus bringing
             you the best of Japanese pop culture.
           </p>
           <div className="w-32 h-1 bg-gradient-to-r from-pink-400 to-rose-500 mx-auto rounded-full"></div>
@@ -112,7 +112,7 @@ export default function AboutPage() {
                 <p className="text-lg">
                   We realized there was a huge demand for genuine anime
                   collectibles, but many fans were getting disappointed by
-                  counterfeit products and poor service. That's when we decided
+                  counterfeit products and poor service. That&apos;s when we decided
                   to create something different - a store built by fans, for
                   fans.
                 </p>
@@ -136,7 +136,7 @@ export default function AboutPage() {
                 />
                 <div className="mt-6 text-center">
                   <p className="text-gray-600 italic">
-                    "From small beginnings to serving anime fans worldwide"
+                    {`"From small beginnings to serving anime fans worldwide"`}
                   </p>
                 </div>
               </div>
@@ -250,10 +250,10 @@ export default function AboutPage() {
               Our Mission
             </h2>
             <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-              To create the world's most trusted and beloved destination for
+              To create the world&apos;s most trusted and beloved destination for
               anime merchandise, where every fan can find authentic,
               high-quality collectibles that bring their favorite characters to
-              life. We're not just selling products - we're helping fans express
+              life. We&apos;re not just selling products - we&apos;re helping fans express
               their passion and connect with the stories they love.
             </p>
             <div className="flex justify-center gap-2">

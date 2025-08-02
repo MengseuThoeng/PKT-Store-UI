@@ -20,7 +20,7 @@ export default function FiguresPage() {
 
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
-    let filtered = featuredProducts.filter((figure) => {
+    const filtered = featuredProducts.filter((figure) => {
       const matchesSearch = figure.name.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesNew = !showOnlyNew || figure.isNew
       const matchesOnSale = !showOnSale || (figure.originalPrice && figure.originalPrice > figure.price)

@@ -30,7 +30,7 @@ export default function MangaListPage() {
 
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
-    let filtered = featuredManga.filter((manga) => {
+    const filtered = featuredManga.filter((manga) => {
       const matchesSearch = manga.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            manga.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            manga.genre.some(g => g.toLowerCase().includes(searchTerm.toLowerCase()))
