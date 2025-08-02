@@ -42,7 +42,7 @@ export default function FeaturedFigures() {
 
       {/* Products Grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {featuredProducts.map((figure) => (
+        {featuredProducts.slice(0, 4).map((figure) => (
           <ProductCard
             key={figure.id}
             figure={figure}

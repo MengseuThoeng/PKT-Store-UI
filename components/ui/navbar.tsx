@@ -1,41 +1,52 @@
-"use client"
-import { useState, useEffect } from "react"
-import { Search, ShoppingCart, User, Heart, Menu, X, Star, ChevronDown } from "lucide-react"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
+"use client";
+import { useState, useEffect } from "react";
+import {
+  Search,
+  ShoppingCart,
+  User,
+  Heart,
+  Menu,
+  X,
+  Star,
+  ChevronDown,
+} from "lucide-react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const navItems = [
   {
     name: "Figures",
-    href: "#figures",
-    hasDropdown: true,
-    dropdownItems: [
-      { name: "Action Figures", href: "#action-figures" },
-      { name: "Scale Figures", href: "#scale-figures" },
-      { name: "Nendoroids", href: "#nendoroids" },
-      { name: "Limited Edition", href: "#limited" },
-    ],
+    href: "/figures",
+    // hasDropdown: false,
+    // dropdownItems: [
+    //   { name: "Action Figures", href: "#action-figures" },
+    //   { name: "Scale Figures", href: "#scale-figures" },
+    //   { name: "Nendoroids", href: "#nendoroids" },
+    //   { name: "Limited Edition", href: "#limited" },
+    // ],
   },
-  { name: "Manga", href: "#manga" },
-  { name: "Plushies", href: "#plushies" },
-  { name: "Accessories", href: "#accessories" },
+  { name: "Manga", href: "/manga" },
+  { name: "Plushies", href: "/plushies" },
+  { name: "About Us", href: "/about-us" },
+  // { name: "Contact Us", href: "/contact-us" },
   { name: "New Releases", href: "#new", isSpecial: true },
-]
+];
 
 export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [cartCount, setCartCount] = useState(3)
-  const [wishlistCount, setWishlistCount] = useState(7)
-  const [searchQuery, setSearchQuery] = useState("")
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [cartCount, setCartCount] = useState(3);
+  const [wishlistCount, setWishlistCount] = useState(7);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <>
@@ -63,13 +74,15 @@ export default function Navbar() {
             <div className="flex-shrink-0 group cursor-pointer">
               <div className="relative">
                 <div className="w-12 h-12 flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 bg-gradient-to-br from-pink-100 to-rose-100 rounded-xl shadow-md group-hover:shadow-lg">
-                  <Image
-                    src="/images/pngkt.png"
-                    alt="PKT Store Logo"
-                    width={40}
-                    height={40}
-                    className="w-8 h-8 object-cover rounded-lg"
-                  />
+                  <Link href={"/"} className="flex items-center gap-2">
+                    <Image
+                      src="/images/pngkt.png"
+                      alt="PKT Store Logo"
+                      width={40}
+                      height={40}
+                      className="w-8 h-8 object-cover rounded-lg"
+                    />
+                  </Link>
                 </div>
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-sm">
                   <span className="text-xs">✨</span>
@@ -90,31 +103,19 @@ export default function Navbar() {
                           : "text-gray-700 hover:text-pink-600 hover:bg-pink-50"
                       }`}
                     >
-                      {item.name}
-                      {item.hasDropdown && <ChevronDown className="w-4 h-4 ml-1" />}
-                      {item.isSpecial && (
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce">
-                          !
-                        </span>
-                      )}
-                    </Button>
+                      <Link
+                        href={item.href}
+                        className="flex items-center gap-1"
+                      >
+                        {item.name}
 
-                    {/* Dropdown Menu */}
-                    {item.hasDropdown && item.dropdownItems && (
-                      <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-pink-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                        <div className="py-2">
-                          {item.dropdownItems.map((dropdownItem) => (
-                            <a
-                              key={dropdownItem.name}
-                              href={dropdownItem.href}
-                              className="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-colors duration-200"
-                            >
-                              {dropdownItem.name}
-                            </a>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                        {item.isSpecial && (
+                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce">
+                            !
+                          </span>
+                        )}
+                      </Link>
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -188,7 +189,11 @@ export default function Navbar() {
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="lg:hidden text-gray-600 hover:text-pink-600 transition-colors duration-300"
               >
-                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {isMenuOpen ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Menu className="h-5 w-5" />
+                )}
               </Button>
             </div>
           </div>
@@ -248,5 +253,5 @@ export default function Navbar() {
         }
       `}</style>
     </>
-  )
+  );
 }

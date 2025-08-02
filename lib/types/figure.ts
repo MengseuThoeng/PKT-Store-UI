@@ -6,4 +6,5 @@ export type Figure = {
   originalPrice?: number
   rating?: number
   isNew?: boolean
+  description?: string
 }

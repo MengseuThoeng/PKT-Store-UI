@@ -42,7 +42,7 @@ export default function FeaturedPlushies() {
 
       {/* Plushies Grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {featuredPlushies.map((plushie) => (
+        {featuredPlushies.slice(0, 4).map((plushie) => (
           <PlushieCard
             key={plushie.id}
             plushie={plushie}
