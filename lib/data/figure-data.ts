@@ -9,7 +9,19 @@ export const featuredProducts: Figure[] = [
     image: "/figures/RObin.jpg",
     rating: 4.8,
     isNew: true,
-    description: "Collectible Nico Robin figure from One Piece, perfect for fans and collectors."
+    description: "Collectible Nico Robin figure from One Piece, perfect for fans and collectors. This beautifully crafted figure captures Robin's elegant pose and attention to detail that makes it a standout piece in any collection.",
+    series: "One Piece",
+    character: "Nico Robin",
+    manufacturer: "Bandai",
+    releaseDate: "2024",
+    dimensions: "23cm (H) x 15cm (W) x 12cm (D)",
+    scale: "1/8",
+    material: "PVC, ABS",
+    category: "Scale Figure",
+    inStock: true,
+    stockCount: 15,
+    images: ["/figures/RObin.jpg"],
+    features: ["Detailed sculpting", "Premium paint job", "Display base included", "Authentic design"]
   },
   {
     id: 2,
@@ -17,7 +29,19 @@ export const featuredProducts: Figure[] = [
     price: 32.5,
     image: "/figures/mikeytr.jpg",
     rating: 4.9,
-    description: "Stylish Mikey figure from Tokyo Revengers, a must-have for anime enthusiasts."
+    description: "Stylish Mikey figure from Tokyo Revengers, a must-have for anime enthusiasts. Features incredible attention to detail and dynamic pose.",
+    series: "Tokyo Revengers",
+    character: "Manjiro Sano (Mikey)",
+    manufacturer: "Good Smile Company",
+    releaseDate: "2024",
+    dimensions: "20cm (H) x 14cm (W) x 10cm (D)",
+    scale: "1/8",
+    material: "PVC, ABS",
+    category: "Scale Figure",
+    inStock: true,
+    stockCount: 8,
+    images: ["/figures/mikeytr.jpg"],
+    features: ["Dynamic pose", "Detailed jacket", "Motorcycle accessories", "High-quality finish"]
   },
   {
     id: 3,
@@ -27,7 +51,19 @@ export const featuredProducts: Figure[] = [
     image: "/figures/GOjo.jpg",
     rating: 5.0,
     isNew: true,
-    description: "High-quality Gojo Satoru figure from Jujutsu Kaisen, ideal for display."
+    description: "High-quality Gojo Satoru figure from Jujutsu Kaisen, ideal for display. Captures the iconic blindfolded sorcerer in stunning detail.",
+    series: "Jujutsu Kaisen",
+    character: "Satoru Gojo",
+    manufacturer: "Kotobukiya",
+    releaseDate: "2024",
+    dimensions: "25cm (H) x 16cm (W) x 13cm (D)",
+    scale: "1/7",
+    material: "PVC, ABS",
+    category: "Scale Figure",
+    inStock: true,
+    stockCount: 12,
+    images: ["/figures/GOjo.jpg"],
+    features: ["Translucent blindfold effect", "Infinity technique base", "Removable sunglasses", "Premium quality"]
   },
   {
     id: 4,
@@ -37,7 +73,19 @@ export const featuredProducts: Figure[] = [
     image: "/figures/saber.jpg",
     rating: 5.0,
     isNew: true,
-    description: "Elegant Saber figure from Fate/Stay Night, perfect for collectors."
+    description: "Elegant Saber figure from Fate/Stay Night, perfect for collectors. This stunning figure captures the legendary King Arthur in her iconic blue dress with exceptional detail and craftsmanship.",
+    series: "Fate/Stay Night",
+    character: "Saber (Artoria Pendragon)",
+    manufacturer: "Good Smile Company",
+    releaseDate: "2024",
+    dimensions: "24cm (H) x 16cm (W) x 12cm (D)",
+    scale: "1/7",
+    material: "PVC, ABS",
+    category: "Scale Figure",
+    inStock: true,
+    stockCount: 10,
+    images: ["/figures/saber.jpg"],
+    features: ["Detailed armor sculpting", "Removable sword", "Premium paint finish", "Display base included"]
   },
   {
     id: 5,
@@ -47,7 +95,19 @@ export const featuredProducts: Figure[] = [
     image: "/figures/levi.png",
     rating: 4.8,
     isNew: true,
-    description: "Dynamic Levi Ackerman figure from Attack on Titan, a must-have for fans."
+    description: "Dynamic Levi Ackerman figure from Attack on Titan, a must-have for fans. Features the Survey Corps captain in his iconic ODM gear with incredible attention to detail.",
+    series: "Attack on Titan",
+    character: "Levi Ackerman",
+    manufacturer: "Kotobukiya",
+    releaseDate: "2024",
+    dimensions: "22cm (H) x 18cm (W) x 15cm (D)",
+    scale: "1/8",
+    material: "PVC, ABS",
+    category: "Scale Figure",
+    inStock: true,
+    stockCount: 14,
+    images: ["/figures/levi.png"],
+    features: ["ODM gear details", "Dual blade accessories", "Dynamic action pose", "Survey Corps emblem"]
   },
   {
     id: 6,
@@ -57,7 +117,19 @@ export const featuredProducts: Figure[] = [
     image: "/figures/rem.png",
     rating: 4.9,
     isNew: false,
-    description: "Beautiful Rem figure from Re:Zero, perfect for display and collection."
+    description: "Beautiful Rem figure from Re:Zero, perfect for display and collection. This adorable figure showcases Rem in her maid outfit with exquisite detail and quality.",
+    series: "Re:Zero",
+    character: "Rem",
+    manufacturer: "Bandai",
+    releaseDate: "2023",
+    dimensions: "23cm (H) x 14cm (W) x 13cm (D)",
+    scale: "1/7",
+    material: "PVC, ABS",
+    category: "Scale Figure",
+    inStock: true,
+    stockCount: 9,
+    images: ["/figures/rem.png"],
+    features: ["Detailed maid outfit", "Blue hair sculpting", "Morning star weapon", "Elegant pose design"]
   },
   {
     id: 7,
@@ -67,7 +139,19 @@ export const featuredProducts: Figure[] = [
     image: "/figures/shinobu.png",
     rating: 4.9,
     isNew: true,
-    description: "Graceful Shinobu Kocho figure from Demon Slayer, a must-have for fans."
+    description: "Graceful Shinobu Kocho figure from Demon Slayer, a must-have for fans. Captures the Insect Hashira's elegant and deadly beauty with stunning craftsmanship.",
+    series: "Demon Slayer",
+    character: "Shinobu Kocho",
+    manufacturer: "Good Smile Company",
+    releaseDate: "2024",
+    dimensions: "25cm (H) x 17cm (W) x 14cm (D)",
+    scale: "1/7",
+    material: "PVC, ABS",
+    category: "Scale Figure",
+    inStock: true,
+    stockCount: 11,
+    images: ["/figures/shinobu.png"],
+    features: ["Butterfly-themed design", "Detailed haori coat", "Poison blade accessory", "Gradient hair coloring"]
   },
   {
     id: 8,
@@ -77,7 +161,19 @@ export const featuredProducts: Figure[] = [
     image: "/figures/tanjiro.png",
     rating: 4.8,
     isNew: true,
-    description: "Heroic Tanjiro Kamado figure from Demon Slayer, a must-have for collectors."
+    description: "Heroic Tanjiro Kamado figure from Demon Slayer, a must-have for collectors. Features the main protagonist in his iconic checkered haori with his Nichirin blade.",
+    series: "Demon Slayer",
+    character: "Tanjiro Kamado",
+    manufacturer: "Kotobukiya",
+    releaseDate: "2024",
+    dimensions: "24cm (H) x 16cm (W) x 13cm (D)",
+    scale: "1/8",
+    material: "PVC, ABS",
+    category: "Scale Figure",
+    inStock: true,
+    stockCount: 16,
+    images: ["/figures/tanjiro.png"],
+    features: ["Checkered haori pattern", "Nichirin blade detail", "Water breathing effects", "Determined expression"]
   },
   {
     id: 9,
@@ -87,7 +183,19 @@ export const featuredProducts: Figure[] = [
     image: "/figures/luffy.png",
     rating: 4.7,
     isNew: false,
-    description: "Adventurous Luffy figure from One Piece, perfect for fans and collectors."
+    description: "Adventurous Luffy figure from One Piece, perfect for fans and collectors. Shows the Straw Hat captain in his classic outfit with his signature smile and determination.",
+    series: "One Piece",
+    character: "Monkey D. Luffy",
+    manufacturer: "Bandai",
+    releaseDate: "2023",
+    dimensions: "21cm (H) x 15cm (W) x 12cm (D)",
+    scale: "1/8",
+    material: "PVC, ABS",
+    category: "Scale Figure",
+    inStock: true,
+    stockCount: 13,
+    images: ["/figures/luffy.png"],
+    features: ["Straw hat accessory", "Stretchy arm pose", "Vibrant red vest", "Cheerful expression"]
   },
   {
     id: 10,
@@ -97,7 +205,19 @@ export const featuredProducts: Figure[] = [
     image: "/figures/zoro.png",
     rating: 4.8,
     isNew: true,
-    description: "Fierce Zoro figure from One Piece, a must-have for collectors."
+    description: "Fierce Zoro figure from One Piece, a must-have for collectors. Features the legendary swordsman with his three-sword fighting style and intimidating presence.",
+    series: "One Piece",
+    character: "Roronoa Zoro",
+    manufacturer: "Good Smile Company",
+    releaseDate: "2024",
+    dimensions: "26cm (H) x 18cm (W) x 15cm (D)",
+    scale: "1/7",
+    material: "PVC, ABS",
+    category: "Scale Figure",
+    inStock: true,
+    stockCount: 7,
+    images: ["/figures/zoro.png"],
+    features: ["Three katana swords", "Detailed scar design", "Muscular body sculpt", "Intimidating stance"]
   }
 
 ]

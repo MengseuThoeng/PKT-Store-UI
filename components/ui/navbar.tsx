@@ -28,7 +28,7 @@ const navItems = [
   },
   { name: "Manga", href: "/manga" },
   { name: "Plushies", href: "/plushies" },
-  { name: "About Us", href: "/about-us" },
+  { name: "About Us", href: "/about" },
   // { name: "Contact Us", href: "/contact-us" },
   { name: "New Releases", href: "#new", isSpecial: true },
 ];

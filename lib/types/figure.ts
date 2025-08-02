@@ -7,4 +7,16 @@ export type Figure = {
   rating?: number
   isNew?: boolean
   description?: string
+  series?: string
+  character?: string
+  manufacturer?: string
+  releaseDate?: string
+  dimensions?: string
+  scale?: string
+  material?: string
+  category?: string
+  inStock?: boolean
+  stockCount?: number
+  images?: string[]
+  features?: string[]
 }

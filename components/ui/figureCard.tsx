@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { ShoppingCart, Heart, Star } from "lucide-react"
 import type { Figure } from "@/lib/types/figure"
 
@@ -55,22 +56,35 @@ export default function ProductCard({
       </button>
 
       {/* Image Container - Made smaller */}
-      <div className="relative aspect-[2/3] overflow-hidden bg-gradient-to-br from-pink-50 to-rose-50">
-        <Image
-          src={figure.image || "/placeholder.svg"}
-          alt={figure.name}
-          fill
-          className={`object-cover transition-all duration-500 ${isHovered ? "scale-105" : "scale-100"}`}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+      <Link href={`/figures/${figure.id}`} className="block">
+        <div className="relative aspect-[2/3] overflow-hidden bg-gradient-to-br from-pink-50 to-rose-50 cursor-pointer">
+          <Image
+            src={figure.image || "/placeholder.svg"}
+            alt={figure.name}
+            fill
+            className={`object-cover transition-all duration-500 ${isHovered ? "scale-105" : "scale-100"}`}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
 
-        {/* Overlay on Hover */}
-        <div
-          className={`absolute inset-0 bg-gradient-to-t from-black/20 to-transparent transition-opacity duration-300 ${
-            isHovered ? "opacity-100" : "opacity-0"
-          }`}
-        />
-      </div>
+          {/* Overlay on Hover */}
+          <div
+            className={`absolute inset-0 bg-gradient-to-t from-black/20 to-transparent transition-opacity duration-300 ${
+              isHovered ? "opacity-100" : "opacity-0"
+            }`}
+          />
+          
+          {/* View Details Overlay */}
+          <div
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+              isHovered ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full text-pink-600 font-semibold text-sm shadow-lg">
+              View Details
+            </div>
+          </div>
+        </div>
+      </Link>
 
       {/* Content */}
       <div className="p-4">
@@ -90,9 +104,11 @@ export default function ProductCard({
         )}
 
         {/* Figure Name */}
-        <h3 className="font-bold text-base mb-2 text-gray-800 group-hover:text-pink-600 transition-colors line-clamp-2">
-          {figure.name}
-        </h3>
+        <Link href={`/figures/${figure.id}`}>
+          <h3 className="font-bold text-base mb-2 text-gray-800 group-hover:text-pink-600 transition-colors line-clamp-2 cursor-pointer hover:text-pink-500">
+            {figure.name}
+          </h3>
+        </Link>
 
         {/* Price */}
         <div className="flex items-center gap-2 mb-3">
