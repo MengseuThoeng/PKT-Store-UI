@@ -157,193 +157,313 @@ function generateInvoiceHtml(order: Order): string {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice #${order.orderNumber}</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            padding: 40px 20px;
+            color: #333;
+        }
+        
+        .invoice-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        }
-        .invoice {
             background: white;
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 60px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
-        .header {
-            background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);
-            color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin: -40px -40px 30px -40px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 2.5em;
-            font-weight: bold;
-        }
-        .order-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-        .info-section {
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 4px solid #ec4899;
-        }
-        .info-section h3 {
-            margin: 0 0 15px 0;
-            color: #1f2937;
-            font-size: 1.2em;
-        }
-        .info-section p {
-            margin: 5px 0;
-            color: #6b7280;
-        }
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 30px 0;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .items-table th {
-            background: #374151;
-            color: white;
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-        }
-        .items-table td {
-            padding: 15px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-        .items-table tr:nth-child(even) {
-            background: #f9fafb;
-        }
-        .totals {
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-        .total-row {
+        
+        .invoice-header {
             display: flex;
             justify-content: space-between;
-            margin: 10px 0;
-            padding: 5px 0;
+            align-items: flex-start;
+            margin-bottom: 60px;
         }
-        .total-row.final {
-            border-top: 2px solid #ec4899;
-            padding-top: 15px;
-            font-size: 1.3em;
+        
+        .invoice-title {
+            font-size: 48px;
             font-weight: bold;
-            color: #ec4899;
+            color: #1e3a8a;
+            letter-spacing: 2px;
         }
-        .footer {
-            text-align: center;
+        
+        .company-logo {
+            font-size: 40px;
+            color: #fbbf24;
+        }
+        
+        .billing-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 60px;
+        }
+        
+        .bill-to, .invoice-details {
+            flex: 1;
+        }
+        
+        .bill-to {
+            margin-right: 40px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .customer-info, .invoice-meta {
+            line-height: 1.8;
+            color: #555;
+        }
+        
+        .invoice-meta {
+            text-align: right;
+        }
+        
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 40px 0;
+        }
+        
+        .invoice-table th {
+            background: none;
+            border-bottom: 2px solid #e74c3c;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            color: #1e3a8a;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 14px;
+        }
+        
+        .invoice-table th:last-child,
+        .invoice-table td:last-child {
+            text-align: right;
+        }
+        
+        .invoice-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid #eee;
+            color: #555;
+        }
+        
+        .invoice-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .totals-section {
+            margin-top: 40px;
+            text-align: right;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: flex-end;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        
+        .total-label {
+            width: 150px;
+            text-align: right;
+            margin-right: 30px;
+            color: #555;
+        }
+        
+        .total-amount {
+            width: 120px;
+            text-align: right;
+            font-weight: 500;
+        }
+        
+        .grand-total {
+            border-top: 2px solid #e74c3c;
+            padding-top: 15px;
+            margin-top: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+        
+        .grand-total .total-label {
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .payment-info {
             margin-top: 40px;
             padding: 20px;
-            background: #f1f5f9;
-            border-radius: 10px;
-            color: #64748b;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #1e3a8a;
         }
-        .anime-decoration {
+        
+        .footer {
+            margin-top: 60px;
             text-align: center;
-            font-size: 2em;
-            margin: 20px 0;
+            color: #888;
+            font-size: 14px;
+            line-height: 1.6;
         }
+        
         @media print {
-            body { background: white; }
-            .invoice { box-shadow: none; }
+            body { 
+                background: white; 
+                padding: 0;
+            }
+            .invoice-container { 
+                box-shadow: none; 
+                padding: 40px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .invoice-container {
+                padding: 30px 20px;
+            }
+            
+            .invoice-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .invoice-title {
+                font-size: 36px;
+                margin-bottom: 20px;
+            }
+            
+            .billing-info {
+                flex-direction: column;
+            }
+            
+            .bill-to {
+                margin-right: 0;
+                margin-bottom: 30px;
+            }
+            
+            .invoice-meta {
+                text-align: left;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="invoice">
-        <div class="header">
-            <h1>🎌 PKT STORE</h1>
-            <p>Premium Anime Figures, Manga & Plushies</p>
-            <h2>Invoice #${order.orderNumber}</h2>
+    <div class="invoice-container">
+        <!-- Header -->
+        <div class="invoice-header">
+            <div>
+                <div class="invoice-title">INVOICE</div>
+                <div style="margin-top: 10px; color: #666; font-size: 14px;">PKT Store</div>
+            </div>
+            <div class="company-logo">🎌</div>
         </div>
 
-        <div class="order-info">
-            <div class="info-section">
-                <h3>👤 Customer Information</h3>
-                <p><strong>Name:</strong> ${order.customer.name}</p>
-                <p><strong>Phone:</strong> ${order.customer.phone}</p>
-                <p><strong>Email:</strong> ${order.customer.email}</p>
-                <p><strong>Telegram:</strong> ${order.customer.telegramUsername}</p>
-                <p><strong>Address:</strong> ${order.customer.address}</p>
+        <!-- Billing Information -->
+        <div class="billing-info">
+            <div class="bill-to">
+                <div class="section-title">Bill To</div>
+                <div class="customer-info">
+                    <div style="font-weight: 600; margin-bottom: 5px;">${order.customer.name}</div>
+                    <div>${order.customer.phone}</div>
+                    <div>${order.customer.email}</div>
+                    <div>${order.customer.telegramUsername}</div>
+                    <div style="margin-top: 10px;">${order.customer.address}</div>
+                </div>
             </div>
             
-            <div class="info-section">
-                <h3>📋 Order Details</h3>
-                <p><strong>Order Number:</strong> ${order.orderNumber}</p>
-                <p><strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}</p>
-                <p><strong>Payment Method:</strong> ${order.paymentMethod.label}</p>
-                <p><strong>Status:</strong> ${order.status.toUpperCase()}</p>
+            <div class="invoice-details">
+                <div class="invoice-meta">
+                    <div style="margin-bottom: 15px;">
+                        <span style="color: #1e3a8a; font-weight: bold; font-size: 16px;">Invoice #</span>
+                        <div style="font-size: 20px; font-weight: 600; margin-top: 5px;">${order.orderNumber}</div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <span style="color: #1e3a8a; font-weight: bold;">Invoice Date</span>
+                        <div style="margin-top: 5px;">${new Date(order.createdAt).toLocaleDateString('en-GB')}</div>
+                    </div>
+                    <div>
+                        <span style="color: #1e3a8a; font-weight: bold;">Due Date</span>
+                        <div style="margin-top: 5px;">${new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB')}</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <table class="items-table">
+        <!-- Items Table -->
+        <table class="invoice-table">
             <thead>
                 <tr>
-                    <th>Item</th>
-                    <th>Type</th>
-                    <th>Quantity</th>
+                    <th>QTY</th>
+                    <th>Description</th>
                     <th>Unit Price</th>
-                    <th>Total</th>
+                    <th>Amount</th>
                 </tr>
             </thead>
             <tbody>
                 ${order.items.map(item => `
                 <tr>
-                    <td><strong>${item.name}</strong>${item.series ? `<br><small>Series: ${item.series}</small>` : ''}</td>
-                    <td><span style="background: #ec4899; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em;">${item.type.toUpperCase()}</span></td>
-                    <td>${item.quantity}</td>
+                    <td style="font-weight: 600;">${item.quantity}</td>
+                    <td>
+                        <div style="font-weight: 600; margin-bottom: 5px;">${item.name}</div>
+                        ${item.series ? `<div style="font-size: 13px; color: #888;">Series: ${item.series}</div>` : ''}
+                        <div style="font-size: 13px; color: #888; text-transform: capitalize;">${item.type}</div>
+                    </td>
                     <td>$${item.price.toFixed(2)}</td>
-                    <td>$${(item.price * item.quantity).toFixed(2)}</td>
+                    <td style="font-weight: 600;">$${(item.price * item.quantity).toFixed(2)}</td>
                 </tr>
                 `).join('')}
             </tbody>
         </table>
 
-        <div class="totals">
+        <!-- Totals -->
+        <div class="totals-section">
             <div class="total-row">
-                <span>Subtotal:</span>
-                <span>$${order.subtotal.toFixed(2)}</span>
+                <div class="total-label">Subtotal</div>
+                <div class="total-amount">$${order.subtotal.toFixed(2)}</div>
             </div>
             <div class="total-row">
-                <span>Shipping:</span>
-                <span style="color: #059669;">FREE</span>
+                <div class="total-label">Shipping</div>
+                <div class="total-amount" style="color: #059669;">FREE</div>
             </div>
             <div class="total-row">
-                <span>Tax (8%):</span>
-                <span>$${order.tax.toFixed(2)}</span>
+                <div class="total-label">Tax (${((order.tax / order.subtotal) * 100).toFixed(1)}%)</div>
+                <div class="total-amount">$${order.tax.toFixed(2)}</div>
             </div>
-            <div class="total-row final">
-                <span>TOTAL:</span>
-                <span>$${order.total.toFixed(2)}</span>
+            <div class="total-row grand-total">
+                <div class="total-label">Total</div>
+                <div class="total-amount">$${order.total.toFixed(2)}</div>
             </div>
         </div>
 
-        <div class="anime-decoration">
-            🎌 ⚡ 🎯 ⭐ 🔥
+        <!-- Payment Information -->
+        <div class="payment-info">
+            <div style="font-weight: bold; color: #1e3a8a; margin-bottom: 10px;">Payment Method</div>
+            <div style="font-size: 16px; font-weight: 500;">${order.paymentMethod.label}</div>
+            <div style="margin-top: 15px; font-size: 14px; color: #666;">
+                Thank you for your business! If you have any questions about this invoice, please contact us.
+            </div>
         </div>
 
+        <!-- Footer -->
         <div class="footer">
-            <p><strong>Thank you for shopping with PKT Store!</strong></p>
-            <p>For any questions, contact us via Telegram or email</p>
-            <p>🛍️ Bringing your favorite anime to life! 🛍️</p>
-            <p style="margin-top: 15px; font-size: 0.9em;">
-                Generated on ${new Date().toLocaleString()}
-            </p>
+            <div style="font-weight: 600; color: #1e3a8a; margin-bottom: 10px;">PKT Store - Premium Anime Merchandise</div>
+            <div>Bringing your favorite anime to life! 🎌</div>
+            <div style="margin-top: 15px; font-size: 12px;">
+                Generated on ${new Date().toLocaleString('en-GB')}
+            </div>
         </div>
     </div>
 
@@ -356,7 +476,7 @@ function generateInvoiceHtml(order: Order): string {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'invoice-${order.orderNumber}.html';
+            a.download = 'PKT-Invoice-${order.orderNumber}.html';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);

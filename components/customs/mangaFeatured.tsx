@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react"
+import Link from "next/link"
 import { BookOpen } from "lucide-react"
 import MangaCard from "@/components/ui/mangaCard"
 import { featuredManga } from "@/lib/data/manga-data"
@@ -93,10 +94,12 @@ export default function FeaturedManga() {
 
       {/* View All Button */}
       <div className="text-center mt-10">
-        <button className="inline-flex items-center gap-2 bg-white border-2 border-pink-300 text-pink-600 hover:bg-pink-50 hover:border-pink-400 px-6 py-2.5 rounded-full font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
-          <span>Explore All Manga</span>
-          <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
-        </button>
+        <Link href="/manga">
+          <button className="inline-flex items-center gap-2 bg-white border-2 border-pink-300 text-pink-600 hover:bg-pink-50 hover:border-pink-400 px-6 py-2.5 rounded-full font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
+            <span>Explore All Manga</span>
+            <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
+          </button>
+        </Link>
       </div>
       
       {/* Toast Notifications */}
