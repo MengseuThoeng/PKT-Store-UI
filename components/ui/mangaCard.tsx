@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { ShoppingCart, Heart, Star, BookOpen, Eye } from "lucide-react"
 import type { Manga } from "@/lib/types/manga"
 
@@ -89,34 +90,36 @@ export default function MangaCard({
       </button>
 
       {/* Image Container - Made smaller */}
-      <div className="relative aspect-[2/3] overflow-hidden bg-gradient-to-br from-pink-50 to-rose-50">
-        <Image
-          src={manga.image || "/placeholder.svg"}
-          alt={manga.title}
-          fill
-          className={`object-cover transition-all duration-500 ${isHovered ? "scale-105" : "scale-100"}`}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+      <Link href={`/manga/${manga.id}`} className="block">
+        <div className="relative aspect-[2/3] overflow-hidden bg-gradient-to-br from-pink-50 to-rose-50">
+          <Image
+            src={manga.image || "/placeholder.svg"}
+            alt={manga.title}
+            fill
+            className={`object-cover transition-all duration-500 ${isHovered ? "scale-105" : "scale-100"}`}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
 
-        {/* Overlay on Hover */}
-        <div
-          className={`absolute inset-0 bg-gradient-to-t from-black/30 to-transparent transition-opacity duration-300 ${
-            isHovered ? "opacity-100" : "opacity-0"
-          }`}
-        />
+          {/* Overlay on Hover */}
+          <div
+            className={`absolute inset-0 bg-gradient-to-t from-black/30 to-transparent transition-opacity duration-300 ${
+              isHovered ? "opacity-100" : "opacity-0"
+            }`}
+          />
 
-        {/* Quick Preview Button */}
-        <div
-          className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
-            isHovered ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <button className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium hover:bg-white/30 transition-colors flex items-center gap-1">
-            <BookOpen className="w-3 h-3" />
-            Preview
-          </button>
+          {/* View Details Button */}
+          <div
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+              isHovered ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <div className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium hover:bg-white/30 transition-colors flex items-center gap-1">
+              <BookOpen className="w-3 h-3" />
+              View Details
+            </div>
+          </div>
         </div>
-      </div>
+      </Link>
 
       {/* Content - Reduced padding */}
       <div className="p-4">
@@ -139,9 +142,11 @@ export default function MangaCard({
         </div>
 
         {/* Title & Author */}
-        <h3 className="font-bold text-base mb-1 text-gray-800 group-hover:text-pink-600 transition-colors line-clamp-1">
-          {manga.title}
-        </h3>
+        <Link href={`/manga/${manga.id}`} className="block">
+          <h3 className="font-bold text-base mb-1 text-gray-800 hover:text-pink-600 transition-colors line-clamp-1">
+            {manga.title}
+          </h3>
+        </Link>
         <p className="text-xs text-gray-600 mb-2">by {manga.author}</p>
 
         {/* Genres - Limited to 2 */}

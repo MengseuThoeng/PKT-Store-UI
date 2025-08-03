@@ -1,6 +1,7 @@
 "use client"
 import { useState } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { ShoppingCart, Heart, Star, Ruler } from "lucide-react"
 import type { Plushie } from "@/lib/types/plushie"
 
@@ -55,28 +56,42 @@ export default function PlushieCard({
       </button>
 
       {/* Image Container */}
-      <div className="relative aspect-[2/3] overflow-hidden bg-gradient-to-br from-pink-50 to-rose-50">
-        <Image
-          src={plushie.image || "/placeholder.svg"}
-          alt={plushie.name}
-          fill
-          className={`object-cover transition-all duration-500 ${isHovered ? "scale-105" : "scale-100"}`}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
+      <Link href={`/plushies/${plushie.id}`} className="block">
+        <div className="relative aspect-[2/3] overflow-hidden bg-gradient-to-br from-pink-50 to-rose-50">
+          <Image
+            src={plushie.image || "/placeholder.svg"}
+            alt={plushie.name}
+            fill
+            className={`object-cover transition-all duration-500 ${isHovered ? "scale-105" : "scale-100"}`}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
 
-        {/* Overlay on Hover */}
-        <div
-          className={`absolute inset-0 bg-gradient-to-t from-black/20 to-transparent transition-opacity duration-300 ${
-            isHovered ? "opacity-100" : "opacity-0"
-          }`}
-        />
+          {/* Overlay on Hover */}
+          <div
+            className={`absolute inset-0 bg-gradient-to-t from-black/20 to-transparent transition-opacity duration-300 ${
+              isHovered ? "opacity-100" : "opacity-0"
+            }`}
+          />
 
-        {/* Size Badge */}
-        <div className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium text-gray-700 flex items-center gap-1">
-          <Ruler className="w-3 h-3" />
-          {plushie.size.split(" ")[0]}
+          {/* View Details Button */}
+          <div
+            className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
+              isHovered ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <div className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-sm font-medium hover:bg-white/30 transition-colors flex items-center gap-1">
+              <Ruler className="w-3 h-3" />
+              View Details
+            </div>
+          </div>
+
+          {/* Size Badge */}
+          <div className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-medium text-gray-700 flex items-center gap-1">
+            <Ruler className="w-3 h-3" />
+            {plushie.size.split(" ")[0]}
+          </div>
         </div>
-      </div>
+      </Link>
 
       {/* Content */}
       <div className="p-4">
@@ -101,9 +116,11 @@ export default function PlushieCard({
         </div>
 
         {/* Plushie Name */}
-        <h3 className="font-bold text-base mb-1 text-gray-800 group-hover:text-pink-600 transition-colors line-clamp-1">
-          {plushie.character}
-        </h3>
+        <Link href={`/plushies/${plushie.id}`} className="block">
+          <h3 className="font-bold text-base mb-1 text-gray-800 hover:text-pink-600 transition-colors line-clamp-1">
+            {plushie.character}
+          </h3>
+        </Link>
 
         {/* Material */}
         {plushie.material && <p className="text-xs text-gray-500 mb-2">{plushie.material}</p>}

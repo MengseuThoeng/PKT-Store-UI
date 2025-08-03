@@ -11,4 +11,16 @@ export type Manga = {
   genre: string[]
   isPopular?: boolean
   description: string
+  publisher?: string
+  publishDate?: string
+  language?: string
+  dimensions?: string
+  pages?: number
+  isbn?: string
+  inStock?: boolean
+  stockCount?: number
+  images?: string[]
+  features?: string[]
+  demographics?: string
+  serialization?: string
 }
