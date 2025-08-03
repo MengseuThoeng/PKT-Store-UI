@@ -4,6 +4,9 @@ import { Search, Filter, Grid3X3, List, Star, Heart, ShoppingCart, ChevronLeft, 
 import PlushieCard from "@/components/ui/plushie"
 import { featuredPlushies } from "@/lib/data/plushie-data"
 import type { Plushie } from "@/lib/types/plushie"
+import { useCart } from "@/lib/context/CartContext"
+import { useToast } from "@/lib/hooks/useToast"
+import ToastContainer from "@/components/ui/toast"
 
 type SortOption = "name" | "price-low" | "price-high" | "rating" | "newest" | "series"
 type ViewMode = "grid" | "list"
@@ -20,6 +23,8 @@ export default function PlushiePage() {
   const [wishlist, setWishlist] = useState<Set<number>>(new Set())
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(8)
+  const { addItem } = useCart()
+  const { toasts, addToast, removeToast } = useToast()
 
   // Get unique series for filter
   const uniqueSeries = useMemo(() => {
@@ -93,8 +98,20 @@ export default function PlushiePage() {
   }
 
   const handleAddToCart = (plushie: Plushie) => {
-    console.log("Added to cart:", plushie)
-    alert(`${plushie.name} added to cart!`)
+    addItem({
+      id: plushie.id,
+      type: 'plushie',
+      name: plushie.name,
+      price: plushie.price,
+      originalPrice: plushie.originalPrice,
+      image: plushie.image,
+      maxStock: plushie.stockCount || 10,
+      series: plushie.series,
+      character: plushie.character,
+      quantity: 1
+    })
+    
+    addToast(`Added ${plushie.name} to cart!`, 'success')
   }
 
   const handleToggleWishlist = (plushieId: number) => {
@@ -382,6 +399,9 @@ export default function PlushiePage() {
           </div>
         </div>
       </div>
+      
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   )
 }

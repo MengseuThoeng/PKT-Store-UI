@@ -4,13 +4,30 @@ import { Heart } from "lucide-react"
 import PlushieCard from "@/components/ui/plushie"
 import { featuredPlushies } from "@/lib/data/plushie-data"
 import type { Plushie } from "@/lib/types/plushie"
+import { useCart } from "@/lib/context/CartContext"
+import { useToast } from "@/lib/hooks/useToast"
+import ToastContainer from "@/components/ui/toast"
 
 export default function FeaturedPlushies() {
   const [wishlist, setWishlist] = useState<Set<number>>(new Set())
+  const { addItem } = useCart()
+  const { toasts, addToast, removeToast } = useToast()
 
   const handleAddToCart = (plushie: Plushie) => {
-    console.log("Added to cart:", plushie)
-    alert(`${plushie.name} added to cart!`)
+    addItem({
+      id: plushie.id,
+      type: 'plushie',
+      name: plushie.name,
+      price: plushie.price,
+      originalPrice: plushie.originalPrice,
+      image: plushie.image,
+      maxStock: plushie.stockCount || 10,
+      series: plushie.series,
+      character: plushie.character,
+      quantity: 1
+    })
+    
+    addToast(`Added ${plushie.name} to cart!`, 'success')
   }
 
   const handleToggleWishlist = (plushieId: number) => {
@@ -80,6 +97,9 @@ export default function FeaturedPlushies() {
           <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
         </button>
       </div>
+      
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </section>
   )
 }

@@ -24,6 +24,9 @@ import {
 } from "lucide-react"
 import { featuredProducts } from "@/lib/data/figure-data"
 import type { Figure } from "@/lib/types/figure"
+import { useCart } from "@/lib/context/CartContext"
+import { useToast } from "@/lib/hooks/useToast"
+import ToastContainer from "@/components/ui/toast"
 
 export default function FigureDetailsPage() {
   const params = useParams()
@@ -33,6 +36,8 @@ export default function FigureDetailsPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [isWishlisted, setIsWishlisted] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const { addItem } = useCart()
+  const { toasts, addToast, removeToast } = useToast()
 
   useEffect(() => {
     const figureId = parseInt(params.id as string)
@@ -49,8 +54,23 @@ export default function FigureDetailsPage() {
   }
 
   const handleAddToCart = () => {
-    // Add to cart logic here
-    console.log(`Added ${quantity} of ${figure?.name} to cart`)
+    if (!figure) return
+    
+    addItem({
+      id: figure.id,
+      type: 'figure',
+      name: figure.name,
+      price: figure.price,
+      originalPrice: figure.originalPrice,
+      image: figure.image,
+      maxStock: figure.stockCount || 10,
+      series: figure.series,
+      character: figure.character,
+      quantity: quantity
+    })
+    
+    addToast(`Added ${quantity} ${figure.name} to cart!`, 'success')
+    setQuantity(1) // Reset quantity after adding
   }
 
   const handleToggleWishlist = () => {
@@ -378,6 +398,9 @@ export default function FigureDetailsPage() {
           </div>
         </div>
       </div>
+      
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   )
 }

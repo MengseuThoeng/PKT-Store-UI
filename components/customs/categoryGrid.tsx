@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { ArrowRight, Sparkles } from 'lucide-react'
 
 type Category = {
@@ -17,8 +18,8 @@ type Category = {
 const categories: Category[] = [
   {
     id: 1,
-    name: "Action Figures",
-    description: "Premium collectible figures",
+    name: "Figures",
+    description: "Premium collectible anime figures from your favorite series",
     image: "/categories/figure.jpg",
     itemCount: 156,
     gradient: "from-pink-400 to-rose-500",
@@ -26,8 +27,8 @@ const categories: Category[] = [
   },
   {
     id: 2,
-    name: "Manga Collection",
-    description: "Latest & classic manga series",
+    name: "Manga",
+    description: "Latest releases and classic manga collections",
     image: "/categories/manga.jpg",
     itemCount: 89,
     gradient: "from-purple-400 to-indigo-500",
@@ -36,20 +37,11 @@ const categories: Category[] = [
   {
     id: 3,
     name: "Plushies",
-    description: "Soft & cuddly anime characters",
+    description: "Soft and cuddly anime character plushies",
     image: "/categories/plushies.jpg",
     itemCount: 67,
     gradient: "from-pink-300 to-purple-400",
     icon: "🧸"
-  },
-  {
-    id: 4,
-    name: "Accessories",
-    description: "Keychains, pins & more",
-    image: "/categories/keychain.jpg",
-    itemCount: 134,
-    gradient: "from-rose-400 to-pink-500",
-    icon: "✨"
   }
 ]
 
@@ -62,33 +54,15 @@ interface CategoryCardProps {
 function CategoryCard({ category, index, onClick }: CategoryCardProps) {
   const [isHovered, setIsHovered] = useState(false)
 
-  // Layout: Action Figures (large 2x3), others stack vertically on the right
-  const getCardClasses = () => {
-    switch(index) {
-      case 0: // Action Figures - Large featured card
-        return "col-span-2 row-span-3"
-      case 1: // Manga - Top right
-        return "col-span-1 row-span-1"
-      case 2: // Plushies - Middle right  
-        return "col-span-1 row-span-1"
-      case 3: // Accessories - Bottom right
-        return "col-span-1 row-span-1"
-      default:
-        return "col-span-1 row-span-1"
-    }
-  }
-
-  const isLargeCard = index === 0
-
   return (
     <div
-      className={`group relative rounded-2xl overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 hover:shadow-2xl ${getCardClasses()}`}
+      className="group relative rounded-3xl overflow-hidden cursor-pointer transform transition-all duration-500 hover:scale-105 hover:shadow-2xl h-80"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onClick(category)}
       style={{ 
-        animationDelay: `${index * 100}ms`,
-        animation: 'slideInUp 0.6s ease-out both'
+        animationDelay: `${index * 150}ms`,
+        animation: 'slideInUp 0.8s ease-out both'
       }}
     >
       {/* Background Image */}
@@ -100,59 +74,60 @@ function CategoryCard({ category, index, onClick }: CategoryCardProps) {
           className={`object-cover transition-all duration-700 ${
             isHovered ? 'scale-110' : 'scale-100'
           }`}
-          sizes={isLargeCard ? "(max-width: 768px) 100vw, 66vw" : "(max-width: 768px) 50vw, 33vw"}
+          sizes="(max-width: 768px) 100vw, 33vw"
         />
       </div>
 
       {/* Gradient Overlay */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-80 group-hover:opacity-90 transition-opacity duration-300`} />
+      <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-75 group-hover:opacity-85 transition-opacity duration-300`} />
 
       {/* Content */}
-      <div className={`relative h-full flex flex-col justify-between text-white ${
-        isLargeCard ? 'p-8' : 'p-4'
-      }`}>
+      <div className="relative h-full flex flex-col justify-between text-white p-6">
         {/* Top Section */}
         <div className="flex items-start justify-between">
-          <div className={`${isLargeCard ? 'text-5xl md:text-6xl' : 'text-3xl'}`}>
+          <div className="text-5xl animate-bounce">
             {category.icon}
           </div>
-          <div className={`bg-white/20 backdrop-blur-sm rounded-full px-2 py-1 text-xs font-medium ${
+          <div className={`bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-sm font-medium ${
             isHovered ? 'scale-110' : 'scale-100'
-          } transition-transform duration-300 ${isLargeCard ? 'px-3 text-sm' : ''}`}>
+          } transition-transform duration-300`}>
             {category.itemCount} items
           </div>
         </div>
 
-        {/* Bottom Section */}
-        <div>
-          <h3 className={`font-bold mb-2 ${
-            isLargeCard ? 'text-2xl md:text-3xl' : 'text-lg'
-          }`}>
+        {/* Center Section - Category Name */}
+        <div className="text-center">
+          <h3 className="text-3xl font-bold mb-2 group-hover:scale-105 transition-transform duration-300">
             {category.name}
           </h3>
-          <p className={`opacity-90 mb-4 ${
-            isLargeCard ? 'text-base md:text-lg' : 'text-xs'
-          }`}>
+          <div className="w-16 h-1 bg-white/50 mx-auto rounded-full"></div>
+        </div>
+
+        {/* Bottom Section */}
+        <div className="text-center">
+          <p className="text-white/90 mb-4 text-sm leading-relaxed">
             {category.description}
           </p>
           
           {/* Shop Now Button */}
-          <div className={`inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full transition-all duration-300 group/btn ${
-            isHovered ? 'translate-x-2' : 'translate-x-0'
-          } ${isLargeCard ? 'px-4 py-2' : 'px-3 py-1'}`}>
-            <span className={isLargeCard ? 'text-base' : 'text-xs'}>Shop Now</span>
-            <ArrowRight className={`transition-transform duration-300 group-hover/btn:translate-x-1 ${
-              isLargeCard ? 'w-5 h-5' : 'w-3 h-3'
-            }`} />
+          <div className={`inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm hover:bg-white/30 rounded-full px-6 py-3 transition-all duration-300 group/btn ${
+            isHovered ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-80'
+          }`}>
+            <span className="font-semibold">Shop Now</span>
+            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
           </div>
         </div>
       </div>
 
       {/* Shine Effect on Hover */}
-      <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out`} />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
 
       {/* Border Glow Effect */}
-      <div className={`absolute inset-0 rounded-2xl border-2 border-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+      <div className="absolute inset-0 rounded-3xl border-2 border-white/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      
+      {/* Floating particles effect */}
+      <div className="absolute top-4 right-4 w-2 h-2 bg-white/40 rounded-full animate-ping" style={{ animationDelay: `${index * 200}ms` }}></div>
+      <div className="absolute bottom-8 left-6 w-1 h-1 bg-white/60 rounded-full animate-pulse" style={{ animationDelay: `${index * 300}ms` }}></div>
     </div>
   )
 }
@@ -163,49 +138,71 @@ export default function CategoriesGrid() {
   const handleCategoryClick = (category: Category) => {
     console.log('Navigate to category:', category.name)
     setSelectedCategory(category)
-    // Add your navigation logic here
-    // router.push(`/category/${category.id}`)
+    // Navigation will be handled by Link wrapper
+  }
+
+  const getCategoryHref = (categoryName: string) => {
+    switch(categoryName.toLowerCase()) {
+      case 'figures':
+        return '/figures'
+      case 'manga':
+        return '/manga'
+      case 'plushies':
+        return '/plushies'
+      default:
+        return '/'
+    }
   }
 
   return (
     <section className="py-16 px-4 max-w-7xl mx-auto">
       {/* Section Header */}
-      <div className="text-center mb-12">
+      <div className="text-center mb-16">
         <div className="inline-flex items-center gap-2 mb-4">
-          <Sparkles className="w-6 h-6 text-pink-500" />
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
+          <Sparkles className="w-6 h-6 text-pink-500 animate-pulse" />
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-600 bg-clip-text text-transparent">
             Shop by Category
           </h2>
-          <Sparkles className="w-6 h-6 text-pink-500" />
+          <Sparkles className="w-6 h-6 text-pink-500 animate-pulse" />
         </div>
-        <p className="text-gray-600 max-w-2xl mx-auto">
-          Explore our vast collection of anime merchandise organized by your favorite categories
+        <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+          Discover amazing anime merchandise in our carefully curated categories
         </p>
-        <div className="w-24 h-1 bg-gradient-to-r from-pink-300 to-purple-400 mx-auto mt-4 rounded-full"></div>
+        <div className="w-32 h-1 bg-gradient-to-r from-pink-300 to-purple-400 mx-auto mt-6 rounded-full"></div>
       </div>
 
-      {/* Categories Grid */}
-      <div className="grid grid-cols-3 gap-4 md:gap-6 auto-rows-[180px] md:auto-rows-[200px]">
+      {/* Categories Grid - Perfect 3 Column Layout */}
+      <div className="grid md:grid-cols-3 gap-8 md:gap-6">
         {categories.map((category, index) => (
-          <CategoryCard
-            key={category.id}
-            category={category}
-            index={index}
-            onClick={handleCategoryClick}
-          />
+          <Link key={category.id} href={getCategoryHref(category.name)}>
+            <CategoryCard
+              category={category}
+              index={index}
+              onClick={handleCategoryClick}
+            />
+          </Link>
         ))}
       </div>
 
-      {/* Bottom CTA
-      <div className="text-center mt-12">
-        <p className="text-gray-600 mb-4">
-          Can't find what you're looking for?
-        </p>
-        <button className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
-          <span>Browse All Products</span>
-          <ArrowRight className="w-5 h-5" />
-        </button>
-      </div> */}
+      {/* Bottom Stats */}
+      <div className="mt-16 bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-8">
+        <div className="grid md:grid-cols-3 gap-8 text-center">
+          <div className="space-y-2">
+            <div className="text-3xl font-bold text-pink-600">
+              {categories.reduce((total, cat) => total + cat.itemCount, 0)}+
+            </div>
+            <div className="text-gray-600 font-medium">Total Products</div>
+          </div>
+          <div className="space-y-2">
+            <div className="text-3xl font-bold text-purple-600">3</div>
+            <div className="text-gray-600 font-medium">Categories</div>
+          </div>
+          <div className="space-y-2">
+            <div className="text-3xl font-bold text-rose-600">5★</div>
+            <div className="text-gray-600 font-medium">Customer Rating</div>
+          </div>
+        </div>
+      </div>
 
       <style jsx>{`
         @keyframes slideInUp {

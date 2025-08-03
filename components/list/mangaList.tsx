@@ -4,6 +4,9 @@ import { Search, Filter, Grid3X3, List, Star, Heart, ShoppingCart, ChevronLeft, 
 import MangaCard from "@/components/ui/mangaCard"
 import { featuredManga } from "@/lib/data/manga-data"
 import type { Manga } from "@/lib/types/manga"
+import { useCart } from "@/lib/context/CartContext"
+import { useToast } from "@/lib/hooks/useToast"
+import ToastContainer from "@/components/ui/toast"
 
 type SortOption = "title" | "price-low" | "price-high" | "rating" | "popular" | "author" | "volumes"
 type ViewMode = "grid" | "list"
@@ -20,6 +23,8 @@ export default function MangaListPage() {
   const [wishlist, setWishlist] = useState<Set<number>>(new Set())
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(8)
+  const { addItem } = useCart()
+  const { toasts, addToast, removeToast } = useToast()
 
   // Get unique genres and authors for filters
   const uniqueGenres = useMemo(() => {
@@ -90,8 +95,20 @@ export default function MangaListPage() {
   }
 
   const handleAddToCart = (manga: Manga) => {
-    console.log("Added to cart:", manga)
-    alert(`${manga.title} added to cart!`)
+    addItem({
+      id: manga.id,
+      type: 'manga',
+      name: manga.title,
+      price: manga.price,
+      originalPrice: manga.originalPrice,
+      image: manga.image,
+      maxStock: manga.stockCount || 10,
+      series: manga.title, // Use title as series for manga
+      character: manga.author,
+      quantity: 1
+    })
+    
+    addToast(`Added ${manga.title} to cart!`, 'success')
   }
 
   const handleToggleWishlist = (mangaId: number) => {
@@ -379,6 +396,9 @@ export default function MangaListPage() {
           </div>
         </div>
       </div>
+      
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   )
 }

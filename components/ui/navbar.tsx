@@ -13,6 +13,7 @@ import {
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useCart } from "@/lib/context/CartContext";
 
 const navItems = [
   {
@@ -36,9 +37,9 @@ const navItems = [
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [cartCount, setCartCount] = useState(3);
   const [wishlistCount, setWishlistCount] = useState(7);
   const [searchQuery, setSearchQuery] = useState("");
+  const { totalItems } = useCart();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -160,18 +161,20 @@ export default function Navbar() {
               </Button>
 
               {/* Cart */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative text-gray-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-300 group"
-              >
-                <ShoppingCart className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce">
-                    {cartCount}
-                  </span>
-                )}
-              </Button>
+              <Link href="/cart">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative text-gray-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-300 group"
+                >
+                  <ShoppingCart className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                  {totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce">
+                      {totalItems}
+                    </span>
+                  )}
+                </Button>
+              </Link>
 
               {/* User Account */}
               <Button

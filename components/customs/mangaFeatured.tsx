@@ -4,13 +4,30 @@ import { BookOpen } from "lucide-react"
 import MangaCard from "@/components/ui/mangaCard"
 import { featuredManga } from "@/lib/data/manga-data"
 import type { Manga } from "@/lib/types/manga"
+import { useCart } from "@/lib/context/CartContext"
+import { useToast } from "@/lib/hooks/useToast"
+import ToastContainer from "@/components/ui/toast"
 
 export default function FeaturedManga() {
   const [wishlist, setWishlist] = useState<Set<number>>(new Set())
+  const { addItem } = useCart()
+  const { toasts, addToast, removeToast } = useToast()
 
   const handleAddToCart = (manga: Manga) => {
-    console.log("Added to cart:", manga)
-    alert(`${manga.title} added to cart!`)
+    addItem({
+      id: manga.id,
+      type: 'manga',
+      name: manga.title,
+      price: manga.price,
+      originalPrice: manga.originalPrice,
+      image: manga.image,
+      maxStock: manga.stockCount || 10,
+      series: manga.title,
+      character: manga.author,
+      quantity: 1
+    })
+    
+    addToast(`Added ${manga.title} to cart!`, 'success')
   }
 
   const handleToggleWishlist = (mangaId: number) => {
@@ -81,6 +98,9 @@ export default function FeaturedManga() {
           <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
         </button>
       </div>
+      
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </section>
   )
 }

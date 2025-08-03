@@ -4,13 +4,30 @@ import { Sparkles } from "lucide-react"
 import ProductCard from "@/components/ui/figureCard"
 import { featuredProducts } from "@/lib/data/figure-data"
 import type { Figure } from "@/lib/types/figure"
+import { useCart } from "@/lib/context/CartContext"
+import { useToast } from "@/lib/hooks/useToast"
+import ToastContainer from "@/components/ui/toast"
 
 export default function FeaturedFigures() {
   const [wishlist, setWishlist] = useState<Set<number>>(new Set())
+  const { addItem } = useCart()
+  const { toasts, addToast, removeToast } = useToast()
 
   const handleAddToCart = (figure: Figure) => {
-    console.log("Added to cart:", figure)
-    alert(`${figure.name} added to cart!`)
+    addItem({
+      id: figure.id,
+      type: 'figure',
+      name: figure.name,
+      price: figure.price,
+      originalPrice: figure.originalPrice,
+      image: figure.image,
+      maxStock: figure.stockCount || 10,
+      series: figure.series,
+      character: figure.character,
+      quantity: 1
+    })
+    
+    addToast(`Added ${figure.name} to cart!`, 'success')
   }
 
   const handleToggleWishlist = (figureId: number) => {
@@ -60,6 +77,9 @@ export default function FeaturedFigures() {
           <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
         </button>
       </div>
+      
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </section>
   )
 }
