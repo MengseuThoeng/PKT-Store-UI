@@ -1,53 +1,62 @@
-# PKT Store UI 🌸
+# 🎌 PKT Store - Premium Anime Merchandise E-commerce
 
-A beautiful, modern e-commerce website for anime merchandise built with Next.js 15, TypeScript, and Tailwind CSS. Features a stunning pink theme and showcases anime figures, manga, and plushies.
+**🌐 Live Demo:** [https://pkt-store.vercel.app/](https://pkt-store.vercel.app/)
+
+A complete, modern e-commerce platform for anime merchandise built with Next.js 15, featuring real-time shopping cart, secure checkout with Telegram integration, and world-class SEO optimization.
 
 ![PKT Store UI](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
-## ✨ Features
+## 🚀 Key Features
 
-### Design & UI
-- **Modern pink gradient theme** throughout the interface
-- **Responsive design** for all devices (mobile-first approach)
-- **Smooth animations** and hover effects
-- **Glass-morphism effects** and elegant shadows
-- **Professional component architecture**
+### 🛒 **Complete E-commerce Solution**
+- **Real-time Shopping Cart** with Context API + localStorage persistence
+- **3-step Checkout Modal** (Customer Info → Payment → Review)
+- **Cambodian Payment Methods** (ABA Bank, ACLEDA, Wing, Cash on Delivery)
+- **Professional Invoice Generation** with auto-download
+- **Telegram Bot Integration** for order notifications and customer messaging
 
-### Product Categories
-- 🎎 **Anime Figures** - Premium collectible figures
-- 📚 **Manga Collection** - Latest chapters and series  
-- 🧸 **Adorable Plushies** - Soft and cuddly companions
+### 🎯 **Advanced SEO & Marketing**
+- **Dynamic Metadata** for all pages with Open Graph & Twitter Cards
+- **Structured Data (JSON-LD)** for Google Rich Snippets
+- **Auto-generated Sitemap** with product pages
+- **Breadcrumb Navigation** schema for better rankings
+- **Social Media Optimization** for beautiful link previews
 
-### E-commerce Features
-- Product cards with ratings, pricing, and wishlist functionality
-- Image hover effects and quick preview
-- Full-screen hero carousel with auto-play
-- Navigation with dropdown menus
-- Search functionality with filters
-- Shopping cart and wishlist system
-- Customer testimonials section
-- Contact form with validation
-- Interactive Google Maps integration
-- FAQ section for common questions
-- Newsletter subscription
-- Social media integration
+### 🎨 **Modern Design & UX**
+- **Elegant Pink Gradient Theme** with professional aesthetics
+- **Responsive Design** optimized for all devices
+- **Smooth Animations** with Tailwind CSS transitions
+- **Toast Notifications** with slide-in effects and progress bars
+- **Glass-morphism UI** with backdrop blur effects
 
-### Technical Features
-- **TypeScript** for type safety and better developer experience
-- **Server Components** and **Client Components** optimization
-- **Responsive grid layouts**
-- **Loading states** and smooth animations
-- **SEO optimized** structure
-- **Image optimization** with Next.js
+### 📱 **Product Management**
+- 🎎 **Anime Figures** - Premium collectible figures with detailed specs
+- 📚 **Manga Collection** - Japanese comics with series information
+- 🧸 **Plushies** - Adorable soft toys from popular anime series
+- **Dynamic Product Pages** with image galleries and descriptions
+- **Category-based Navigation** with filtering and search
 
 ## 🛠️ Tech Stack
 
-- **Framework:** Next.js 15 (App Router)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS
-- **UI Components:** shadcn/ui
+### **Frontend**
+- **Next.js 15** (App Router) - Full-stack React framework
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first CSS framework
+- **Lucide React** - Beautiful icon library
+- **Context API** - State management for cart functionality
+
+### **Backend & APIs**
+- **Next.js API Routes** - Serverless backend functions
+- **Telegram Bot API** - Order notifications and customer messaging
+- **JSON-LD Schema** - Structured data for SEO
+
+### **Development & Deployment**
+- **ESLint & TypeScript** - Code quality and type checking
+- **Vercel** - Production deployment platform
+- **Git** - Version control with GitHub integration
 - **Icons:** Lucide React
 - **Image Handling:** Next.js Image Optimization
 - **Carousel:** Keen Slider
@@ -55,16 +64,17 @@ A beautiful, modern e-commerce website for anime merchandise built with Next.js 
 
 ## 🚀 Getting Started
 
-### Prerequisites
+### **Prerequisites**
+- Node.js 18+ and npm/yarn/pnpm
+- Git for version control
+- Code editor (VS Code recommended)
 
-Make sure you have Node.js installed on your machine (version 18 or higher).
-
-### Installation
+### **Installation**
 
 1. **Clone the repository**
    ```bash
    git clone https://github.com/MengseuThoeng/PKT-Store-UI.git
-   cd PKT-Store-UI
+   cd pkt-store
    ```
 
 2. **Install dependencies**
@@ -79,8 +89,12 @@ Make sure you have Node.js installed on your machine (version 18 or higher).
 3. **Set up environment variables**
    Create a `.env.local` file in the root directory:
    ```env
+   # Required for Telegram bot functionality
+   TELEGRAM_BOT_TOKEN=your_bot_token_here
+   TELEGRAM_GROUP_CHAT_ID=your_group_chat_id_here
+   
+   # Optional for development
    NEXT_PUBLIC_SITE_URL=http://localhost:3000
-   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_api_key_here
    ```
 
 4. **Run the development server**
@@ -92,137 +106,170 @@ Make sure you have Node.js installed on your machine (version 18 or higher).
    pnpm dev
    ```
 
-5. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+5. **Open in browser**
+   Navigate to [http://localhost:3000](http://localhost:3000) to see the app.
 
-## 📁 Project Structure
-
-```
-PKT-Store-UI/
-├── app/                    # Next.js App Router
-│   ├── globals.css        # Global styles
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Home page
-├── components/            # React components
-│   ├── ui/               # shadcn/ui components
-│   ├── featured-figures.tsx
-│   ├── featured-manga.tsx
-│   ├── featured-plushies.tsx
-│   ├── hero-carousel.tsx
-│   ├── navbar.tsx
-│   ├── testimonials.tsx
-│   ├── contact-us.tsx
-│   └── footer.tsx
-├── data/                  # Static data
-│   ├── manga-data.ts
-│   ├── product-data.ts
-│   ├── plushie-data.ts
-│   ├── testimonial-data.ts
-│   └── contact-data.ts
-├── types/                 # TypeScript type definitions
-│   ├── manga.ts
-│   ├── product.ts
-│   ├── plushie.ts
-│   ├── testimonial.ts
-│   └── contact.ts
-├── public/                # Static assets
-│   └── images/           # Product and UI images
-└── README.md
+### **Build for Production**
+```bash
+npm run build
+npm run start
 ```
 
-## 🧩 Key Components
+## 🎯 Project Structure
 
-### Layout Components
-- **Navbar** - Responsive navigation with search and cart
-- **HeroCarousel** - Full-screen image slider with auto-play
-- **Footer** - Comprehensive footer with links and newsletter
-
-### Product Components
-- **FeaturedFigures** - Anime figure product showcase
-- **FeaturedManga** - Manga collection display
-- **FeaturedPlushies** - Plushie product cards
-
-### Reusable Components
-- **ProductCard** - Reusable product display card
-- **MangaCard** - Specialized manga book card
-- **PlushieCard** - Plushie-specific product card
-- **TestimonialCard** - Customer review card
-- **ContactForm** - Contact form with validation
-
-### Interactive Components
-- **Testimonials** - Customer reviews and ratings
-- **ContactUs** - Contact form with map integration
-
-## 🎨 Design System
-
-### Color Palette
-The project uses a beautiful pink-themed color palette:
-
-```css
-/* Primary Colors */
-pink-50 to pink-600
-rose-50 to rose-600
-
-/* Accent Colors */
-yellow-400 (for ratings)
-red-500 (for sale badges)
-green-500 (for verified badges)
 ```
+pkt-store/
+├── app/                          # Next.js 15 App Router
+│   ├── layout.tsx               # Root layout with metadata
+│   ├── page.tsx                 # Homepage with structured data
+│   ├── sitemap.ts              # Auto-generated sitemap
+│   ├── robots.ts               # SEO robots configuration
+│   ├── figures/                # Anime figures section
+│   │   ├── page.tsx            # Figures listing page
+│   │   └── [id]/               # Dynamic figure pages
+│   ├── manga/                  # Manga collection section
+│   ├── plushies/               # Plushies section
+│   ├── cart/                   # Shopping cart page
+│   ├── about/                  # About page
+│   ├── contact/                # Contact page
+│   └── api/                    # Backend API routes
+│       ├── checkout/           # Order processing
+│       └── telegram/           # Bot functionality
+├── components/                  # Reusable components
+│   ├── customs/                # Custom business components
+│   │   ├── categoryGrid.tsx    # 3-category grid layout
+│   │   ├── slider.tsx          # Hero carousel
+│   │   └── testimonial.tsx     # Customer reviews
+│   ├── list/                   # Product listing components
+│   ├── ui/                     # UI components
+│   │   ├── navbar.tsx          # Navigation with cart counter
+│   │   ├── checkoutModal.tsx   # 3-step checkout process
+│   │   └── toast.tsx           # Notification system
+│   └── seo/                    # SEO components
+│       ├── structured-data.tsx # JSON-LD schemas
+│       └── breadcrumb-schema.tsx # Navigation breadcrumbs
+├── lib/                        # Utilities and configurations
+│   ├── context/                # React Context (Cart state)
+│   ├── data/                   # Product data
+│   ├── hooks/                  # Custom React hooks
+│   └── types/                  # TypeScript definitions
+└── public/                     # Static assets
+    ├── figures/                # Product images
+    ├── manga/                  # Manga covers
+    └── plushie/               # Plushie photos
+## 🎨 Key Components
 
-### Typography
-- **Font weights:** 400, 500, 600, 700, 800
-- **Responsive text sizing**
-- **Gradient text effects** for headings
+### **🛒 Shopping Cart System**
+- **Real-time updates** across all components
+- **Persistent storage** with localStorage
+- **Context API** for global state management
+- **Toast notifications** for user feedback
 
-### Animations
-- **Hover scale effects:** `hover:scale-105`
-- **Smooth transitions:** `transition-all duration-300`
-- **Custom keyframe animations** for special effects
+### **� Checkout Process**
+- **3-step modal workflow**:
+  1. Customer information collection
+  2. Payment method selection (ABA/ACLEDA/Wing/COD)
+  3. Order review and confirmation
+- **Form validation** with error handling
+- **Professional invoice generation** with auto-download
 
-### Responsive Design
-- **Mobile First:** Optimized for mobile devices
-- **Breakpoints:** sm, md, lg, xl, 2xl
-- **Grid Systems:** Responsive product grids
-- **Touch Friendly:** Large tap targets for mobile
+### **🤖 Telegram Integration**
+- **Order notifications** sent to store group
+- **Customer messaging** via Telegram username
+- **HTML-formatted messages** with order details
+- **Error handling** for failed deliveries
+
+### **📊 SEO Optimization**
+- **Dynamic metadata** for all pages
+- **Open Graph tags** for social media sharing
+- **JSON-LD structured data** for rich snippets
+- **Auto-generated sitemap** and robots.txt
+- **Breadcrumb navigation** schema
 
 ## 🔧 Configuration
 
-### TypeScript Types
-```typescript
-// Example product structure
-type Product = {
-  id: number
-  name: string
-  price: number
-  image: string
-  originalPrice?: number
-  rating?: number
-  isNew?: boolean
-}
-```
+### **Telegram Bot Setup**
+1. Create a bot with [@BotFather](https://t.me/botfather)
+2. Get your bot token
+3. Add bot to your store group
+4. Get group chat ID using `/api/telegram/get-chat-id`
+5. Set environment variables in Vercel dashboard
 
-### Tailwind Configuration
-The project includes custom Tailwind configuration for:
-- Custom color palette
-- Animation utilities
-- Component-specific styles
+### **Environment Variables**
+```env
+# Production (Vercel)
+TELEGRAM_BOT_TOKEN=1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZ
+TELEGRAM_GROUP_CHAT_ID=-1001234567890
+
+# Development (Optional)
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
 
 ## 🚀 Deployment
 
-### Build for Production
+### **Vercel (Recommended)**
+1. Push code to GitHub repository
+2. Connect repository to Vercel
+3. Set environment variables in Vercel dashboard
+4. Deploy automatically on every push to main branch
+
+### **Build Commands**
 ```bash
+# Development
+npm run dev
+
+# Production build
 npm run build
-npm start
+
+# Production start
+npm run start
+
+# Linting
+npm run lint
 ```
 
-### Deploy to Vercel (Recommended)
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Deploy automatically with each push
+## 📈 SEO Performance
+
+### **Implemented Features**
+- ✅ **Meta tags** with dynamic titles and descriptions
+- ✅ **Open Graph** for Facebook/Meta sharing
+- ✅ **Twitter Cards** for Twitter sharing
+- ✅ **JSON-LD schemas** for Google Rich Results
+- ✅ **Sitemap generation** for all products
+- ✅ **Robots.txt** for search crawler guidance
+- ✅ **Canonical URLs** to prevent duplicate content
+
+### **Target Keywords**
+- "anime figures cambodia"
+- "manga store phnom penh"
+- "pokemon plushies cambodia"
+- "anime merchandise cambodia"
+- "japanese comics cambodia"
+
+## 🎯 Features Showcase
+
+### **Homepage**
+- Hero carousel with featured products
+- 3-category grid (Figures, Manga, Plushies)
+- Featured products sections
+- Customer testimonials
+- Contact information and map
+
+### **Product Pages**
+- Detailed product information
+- Image galleries with zoom
+- Add to cart functionality
+- Related products suggestions
+- Social sharing buttons
+
+### **Shopping Experience**
+- Real-time cart updates
+- Persistent cart across sessions
+- Professional checkout process
+- Multiple payment methods
+- Order confirmation with invoice
 
 ## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -230,29 +277,24 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 👨‍💻 Author
+
+**Mengseu Thoeng**
+- GitHub: [@MengseuThoeng](https://github.com/MengseuThoeng)
+- Project: [PKT Store](https://pkt-store.vercel.app/)
+
 ## 🙏 Acknowledgments
 
-- [shadcn/ui](https://ui.shadcn.com/) for beautiful UI components
-- [Lucide React](https://lucide.dev/) for consistent icons
-- [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
-- [Next.js](https://nextjs.org/) for the amazing React framework
-- [Keen Slider](https://keen-slider.io/) for smooth carousel functionality
-
-## 📞 Support
-
-If you have any questions or need help with the project:
-
-- 📧 **Email:** [support@pktstore.com](mailto:support@pktstore.com)
-- 🐛 **Issues:** [GitHub Issues](https://github.com/MengseuThoeng/PKT-Store-UI/issues)
-- 💬 **Discussions:** [GitHub Discussions](https://github.com/MengseuThoeng/PKT-Store-UI/discussions)
+- **Next.js Team** - For the amazing framework
+- **Vercel** - For seamless deployment platform
+- **Tailwind CSS** - For beautiful utility-first styling
+- **Lucide** - For the beautiful icon library
+- **Anime Community** - For inspiration and feedback
 
 ---
 
-<div align="center">
-  <p>Made with ❤️ for anime fans</p>
-  <p>© 2025 PKT Store. All rights reserved.</p>
-</div>
+**🎌 Built with ❤️ for anime fans in Cambodia and beyond! 🛍️✨**

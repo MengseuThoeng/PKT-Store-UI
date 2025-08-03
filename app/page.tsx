@@ -8,10 +8,14 @@ import Carousel from "@/components/customs/slider";
 import Testimonials from "@/components/customs/testimonial";
 import BackToTop from "@/components/ui/backToTop";
 import ProgressBar from "@/components/ui/progressBar";
+import { StructuredData, organizationSchema, websiteSchema, storeSchema } from "@/components/seo/structured-data";
 
 export default function Home() {
   return (
     <div>
+      <StructuredData data={organizationSchema} />
+      <StructuredData data={websiteSchema} />
+      <StructuredData data={storeSchema} />
       <ProgressBar />
       <Carousel />
       <CategoriesGrid />
