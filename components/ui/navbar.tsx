@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Search,
   ShoppingCart,
@@ -10,11 +10,16 @@ import {
   X,
   Star,
   ChevronDown,
+  LogOut,
+  Package,
+  Settings,
+  UserCircle,
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useCart } from "@/lib/context/CartContext";
+import { useAuth } from "@/lib/context/AuthContext";
 
 const navItems = [
   {
@@ -40,8 +45,11 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [wishlistCount, setWishlistCount] = useState(7);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const { totalItems } = useCart();
+  const { user, isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
 
   // Function to check if a nav item is active
   const isActive = (href: string) => {
@@ -57,6 +65,28 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.user-menu-container')) {
+        setShowUserMenu(false);
+      }
+    };
+    
+    if (showUserMenu) {
+      document.addEventListener('click', handleClickOutside);
+    }
+    
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showUserMenu]);
+
+  const handleLogout = async () => {
+    await logout();
+    setShowUserMenu(false);
+    router.push('/');
+  };
 
   return (
     <>
@@ -186,14 +216,92 @@ export default function Navbar() {
                 </Button>
               </Link>
 
-              {/* User Account */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-gray-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-300 group"
-              >
-                <User className="h-5 w-5 group-hover:scale-110 transition-transform" />
-              </Button>
+              {/* User Account / Auth */}
+              {isAuthenticated ? (
+                <div className="relative user-menu-container">
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="text-gray-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-300 group flex items-center gap-2 px-3"
+                  >
+                    <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center text-white font-semibold">
+                      {user?.name?.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="hidden xl:block text-sm font-medium">{user?.name}</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+                  </Button>
+
+                  {/* User Dropdown Menu */}
+                  {showUserMenu && (
+                    <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-pink-100 overflow-hidden z-50">
+                      {/* User Info */}
+                      <div className="bg-gradient-to-r from-pink-500 to-rose-500 p-4 text-white">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center text-xl font-bold">
+                            {user?.name?.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-semibold">{user?.name}</p>
+                            <p className="text-xs opacity-90">{user?.email}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Menu Items */}
+                      <div className="p-2">
+                        <Link href="/profile" onClick={() => setShowUserMenu(false)}>
+                          <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-pink-50 rounded-lg transition-colors text-left">
+                            <UserCircle className="w-5 h-5 text-pink-600" />
+                            <span className="font-medium text-gray-700">My Profile</span>
+                          </button>
+                        </Link>
+
+                        <Link href="/orders" onClick={() => setShowUserMenu(false)}>
+                          <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-pink-50 rounded-lg transition-colors text-left">
+                            <Package className="w-5 h-5 text-pink-600" />
+                            <span className="font-medium text-gray-700">My Orders</span>
+                          </button>
+                        </Link>
+
+                        <Link href="/settings" onClick={() => setShowUserMenu(false)}>
+                          <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-pink-50 rounded-lg transition-colors text-left">
+                            <Settings className="w-5 h-5 text-pink-600" />
+                            <span className="font-medium text-gray-700">Settings</span>
+                          </button>
+                        </Link>
+
+                        <div className="border-t border-gray-200 my-2"></div>
+
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 rounded-lg transition-colors text-left"
+                        >
+                          <LogOut className="w-5 h-5 text-red-600" />
+                          <span className="font-medium text-red-600">Logout</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Link href="/login">
+                    <Button
+                      variant="ghost"
+                      className="text-gray-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-300"
+                    >
+                      <User className="h-5 w-5 mr-2" />
+                      <span className="hidden xl:inline">Login</span>
+                    </Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button className="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600 shadow-md hover:shadow-lg transition-all duration-300">
+                      <span className="hidden xl:inline">Sign Up</span>
+                      <span className="xl:hidden">Join</span>
+                    </Button>
+                  </Link>
+                </div>
+              )}
 
               {/* Mobile menu button */}
               <Button
@@ -253,6 +361,65 @@ export default function Navbar() {
                 </Button>
               </Link>
             ))}
+
+            {/* Mobile Auth Section */}
+            <div className="border-t border-pink-100 pt-3 mt-3 space-y-2">
+              {isAuthenticated ? (
+                <>
+                  <div className="flex items-center gap-3 px-3 py-2 bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg">
+                    <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center text-white font-semibold">
+                      {user?.name?.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-800">{user?.name}</p>
+                      <p className="text-xs text-gray-600">{user?.email}</p>
+                    </div>
+                  </div>
+                  
+                  <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start text-gray-700 hover:text-pink-600 hover:bg-pink-50">
+                      <UserCircle className="w-5 h-5 mr-2" />
+                      My Profile
+                    </Button>
+                  </Link>
+
+                  <Link href="/orders" onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start text-gray-700 hover:text-pink-600 hover:bg-pink-50">
+                      <Package className="w-5 h-5 mr-2" />
+                      My Orders
+                    </Button>
+                  </Link>
+
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    <LogOut className="w-5 h-5 mr-2" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start text-gray-700 hover:text-pink-600 hover:bg-pink-50">
+                      <User className="w-5 h-5 mr-2" />
+                      Login
+                    </Button>
+                  </Link>
+
+                  <Link href="/register" onClick={() => setIsMenuOpen(false)}>
+                    <Button className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600">
+                      <UserCircle className="w-5 h-5 mr-2" />
+                      Sign Up
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </nav>

@@ -1,8 +1,8 @@
 "use client"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Search, Filter, Grid3X3, List, Star, Heart, ShoppingCart, ChevronLeft, ChevronRight, Package } from "lucide-react"
 import PlushieCard from "@/components/ui/plushie"
-import { featuredPlushies } from "@/lib/data/plushie-data"
+import { SkeletonPlushieCard } from "@/components/ui/skeletons/SkeletonCard"
 import type { Plushie } from "@/lib/types/plushie"
 import { useCart } from "@/lib/context/CartContext"
 import { useToast } from "@/lib/hooks/useToast"
@@ -23,18 +23,40 @@ export default function PlushiePage() {
   const [wishlist, setWishlist] = useState<Set<number>>(new Set())
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(8)
+  const [isLoading, setIsLoading] = useState(true)
+  const [plushies, setPlushies] = useState<Plushie[]>([])
   const { addItem } = useCart()
   const { toasts, addToast, removeToast } = useToast()
 
+  // Fetch data from API
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true)
+      try {
+        const response = await fetch('/api/products/plushies')
+        const result = await response.json()
+        if (result.success) {
+          setPlushies(result.data)
+        }
+      } catch (error) {
+        console.error('Failed to load plushies:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    loadData()
+  }, [])
+
   // Get unique series for filter
   const uniqueSeries = useMemo(() => {
-    const series = [...new Set(featuredPlushies.map(p => p.series))]
+    const series = [...new Set(plushies.map((p: Plushie) => p.series))]
     return series.sort()
-  }, [])
+  }, [plushies])
 
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
-    const filtered = featuredPlushies.filter((plushie) => {
+    const filtered = plushies.filter((plushie: Plushie) => {
       const matchesSearch = plushie.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            plushie.character.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            plushie.series.toLowerCase().includes(searchTerm.toLowerCase())
@@ -53,7 +75,7 @@ export default function PlushiePage() {
     })
 
     // Sort products
-    filtered.sort((a, b) => {
+    filtered.sort((a: Plushie, b: Plushie) => {
       switch (sortBy) {
         case "name":
           return a.name.localeCompare(b.name)
@@ -73,7 +95,7 @@ export default function PlushiePage() {
     })
 
     return filtered
-  }, [searchTerm, sortBy, showOnlyNew, showOnSale, sizeFilter, seriesFilter])
+  }, [plushies, searchTerm, sortBy, showOnlyNew, showOnSale, sizeFilter, seriesFilter])
 
   // Pagination calculations
   const totalItems = filteredAndSortedProducts.length
@@ -273,13 +295,19 @@ export default function PlushiePage() {
         </div>
 
         {/* Products Grid/List */}
-        {currentItems.length > 0 ? (
+        {isLoading ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }, (_, index) => (
+              <SkeletonPlushieCard key={index} />
+            ))}
+          </div>
+        ) : currentItems.length > 0 ? (
           <div className={
             viewMode === "grid" 
               ? "grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
               : "space-y-4"
           }>
-            {currentItems.map((plushie) => (
+            {currentItems.map((plushie: Plushie) => (
               <PlushieCard
                 key={plushie.id}
                 plushie={plushie}
@@ -374,13 +402,13 @@ export default function PlushiePage() {
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-3xl font-bold text-pink-500 mb-2">
-                {featuredPlushies.length}+
+                {plushies.length}+
               </div>
               <div className="text-gray-600">Adorable Plushies</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-pink-500 mb-2">
-                {featuredPlushies.filter(p => p.isNew).length}
+                {plushies.filter((p: Plushie) => p.isNew).length}
               </div>
               <div className="text-gray-600">New Arrivals</div>
             </div>
@@ -392,7 +420,7 @@ export default function PlushiePage() {
             </div>
             <div>
               <div className="text-3xl font-bold text-pink-500 mb-2">
-                {featuredPlushies.filter(p => p.originalPrice && p.originalPrice > p.price).length}
+                {plushies.filter((p: Plushie) => p.originalPrice && p.originalPrice > p.price).length}
               </div>
               <div className="text-gray-600">On Sale</div>
             </div>

@@ -1,9 +1,9 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Sparkles } from "lucide-react"
 import ProductCard from "@/components/ui/figureCard"
-import { featuredProducts } from "@/lib/data/figure-data"
+import { SkeletonCard } from "@/components/ui/skeletons/SkeletonCard"
 import type { Figure } from "@/lib/types/figure"
 import { useCart } from "@/lib/context/CartContext"
 import { useToast } from "@/lib/hooks/useToast"
@@ -11,8 +11,30 @@ import ToastContainer from "@/components/ui/toast"
 
 export default function FeaturedFigures() {
   const [wishlist, setWishlist] = useState<Set<number>>(new Set())
+  const [isLoading, setIsLoading] = useState(true)
+  const [figures, setFigures] = useState<Figure[]>([])
   const { addItem } = useCart()
   const { toasts, addToast, removeToast } = useToast()
+
+  // Fetch data from API
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true)
+      try {
+        const response = await fetch('/api/products/figures?featured=true&limit=4')
+        const result = await response.json()
+        if (result.success) {
+          setFigures(result.data)
+        }
+      } catch (error) {
+        console.error('Failed to load figures:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    loadData()
+  }, [])
 
   const handleAddToCart = (figure: Figure) => {
     addItem({
@@ -60,15 +82,23 @@ export default function FeaturedFigures() {
 
       {/* Products Grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {featuredProducts.slice(0, 4).map((figure) => (
-          <ProductCard
-            key={figure.id}
-            figure={figure}
-            onAddToCart={handleAddToCart}
-            onToggleWishlist={handleToggleWishlist}
-            isInWishlist={wishlist.has(figure.id)}
-          />
-        ))}
+        {isLoading ? (
+          // Show skeleton cards while loading
+          Array.from({ length: 4 }, (_, index) => (
+            <SkeletonCard key={index} />
+          ))
+        ) : (
+          // Show actual figure cards when loaded
+          figures.slice(0, 4).map((figure) => (
+            <ProductCard
+              key={figure.id}
+              figure={figure}
+              onAddToCart={handleAddToCart}
+              onToggleWishlist={handleToggleWishlist}
+              isInWishlist={wishlist.has(figure.id)}
+            />
+          ))
+        )}
       </div>
 
       {/* View All Button */}

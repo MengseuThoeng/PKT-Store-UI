@@ -1,7 +1,9 @@
 "use client"
 import { useState } from 'react'
-import { X, User, Phone, Mail, MessageCircle, MapPin, CreditCard, Truck, Check } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { X, User, Phone, Mail, MessageCircle, MapPin, CreditCard, Truck, Check, LogIn } from 'lucide-react'
 import { useCart } from '@/lib/context/CartContext'
+import { useAuth } from '@/lib/context/AuthContext'
 import type { CustomerInfo, PaymentMethod, CheckoutFormData } from '@/lib/types/order'
 
 interface CheckoutModalProps {
@@ -39,13 +41,15 @@ const paymentMethods: PaymentMethod[] = [
 
 export default function CheckoutModal({ isOpen, onClose, onSubmit }: CheckoutModalProps) {
   const { items, totalItems, totalPrice } = useCart()
+  const { user, isAuthenticated } = useAuth()
+  const router = useRouter()
   const [step, setStep] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
-    name: '',
-    phone: '',
-    email: '',
+    name: user?.name || '',
+    phone: user?.phone || '',
+    email: user?.email || '',
     telegramUsername: '',
     address: ''
   })
@@ -82,6 +86,54 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit }: CheckoutMod
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // If not authenticated, show login prompt
+  if (!isAuthenticated) {
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl">
+          <div className="text-center">
+            <div className="w-20 h-20 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <LogIn className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Login Required</h2>
+            <p className="text-gray-600 mb-6">
+              Please sign in to your account to continue with checkout
+            </p>
+            
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  onClose()
+                  router.push('/login')
+                }}
+                className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 rounded-lg font-semibold hover:from-pink-600 hover:to-rose-600 transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                Sign In
+              </button>
+              
+              <button
+                onClick={() => {
+                  onClose()
+                  router.push('/register')
+                }}
+                className="w-full border-2 border-pink-500 text-pink-600 py-3 rounded-lg font-semibold hover:bg-pink-50 transition-all duration-300"
+              >
+                Create Account
+              </button>
+              
+              <button
+                onClick={onClose}
+                className="w-full text-gray-600 hover:text-gray-800 py-2 text-sm"
+              >
+                Continue Shopping
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -1,8 +1,8 @@
 "use client"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Search, Filter, Grid3X3, List, Star, Heart, ShoppingCart, ChevronLeft, ChevronRight, BookOpen } from "lucide-react"
 import MangaCard from "@/components/ui/mangaCard"
-import { featuredManga } from "@/lib/data/manga-data"
+import { SkeletonMangaCard } from "@/components/ui/skeletons/SkeletonCard"
 import type { Manga } from "@/lib/types/manga"
 import { useCart } from "@/lib/context/CartContext"
 import { useToast } from "@/lib/hooks/useToast"
@@ -23,32 +23,54 @@ export default function MangaListPage() {
   const [wishlist, setWishlist] = useState<Set<number>>(new Set())
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(8)
+  const [isLoading, setIsLoading] = useState(true)
+  const [manga, setManga] = useState<Manga[]>([])
   const { addItem } = useCart()
   const { toasts, addToast, removeToast } = useToast()
+
+  // Fetch data from API
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true)
+      try {
+        const response = await fetch('/api/products/manga')
+        const result = await response.json()
+        if (result.success) {
+          setManga(result.data)
+        }
+      } catch (error) {
+        console.error('Failed to load manga:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    loadData()
+  }, [])
 
   // Get unique genres and authors for filters
   const uniqueGenres = useMemo(() => {
     const genres = new Set<string>()
-    featuredManga.forEach(manga => manga.genre.forEach(g => genres.add(g)))
+    manga.forEach((m: Manga) => m.genre.forEach((g: string) => genres.add(g)))
     return Array.from(genres).sort()
-  }, [])
+  }, [manga])
 
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
-    const filtered = featuredManga.filter((manga) => {
-      const matchesSearch = manga.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           manga.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           manga.genre.some(g => g.toLowerCase().includes(searchTerm.toLowerCase()))
-      const matchesPopular = !showOnlyPopular || manga.isPopular
-      const matchesOnSale = !showOnSale || (manga.originalPrice && manga.originalPrice > manga.price)
-      const matchesStatus = statusFilter === "all" || manga.status === statusFilter
-      const matchesGenre = genreFilter === "all" || manga.genre.includes(genreFilter)
+    const filtered = manga.filter((mangaItem: Manga) => {
+      const matchesSearch = mangaItem.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           mangaItem.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           mangaItem.genre.some((g: string) => g.toLowerCase().includes(searchTerm.toLowerCase()))
+      const matchesPopular = !showOnlyPopular || mangaItem.isPopular
+      const matchesOnSale = !showOnSale || (mangaItem.originalPrice && mangaItem.originalPrice > mangaItem.price)
+      const matchesStatus = statusFilter === "all" || mangaItem.status === statusFilter
+      const matchesGenre = genreFilter === "all" || mangaItem.genre.includes(genreFilter)
       
       return matchesSearch && matchesPopular && matchesOnSale && matchesStatus && matchesGenre
     })
 
     // Sort products
-    filtered.sort((a, b) => {
+    filtered.sort((a: Manga, b: Manga) => {
       switch (sortBy) {
         case "title":
           return a.title.localeCompare(b.title)
@@ -70,7 +92,7 @@ export default function MangaListPage() {
     })
 
     return filtered
-  }, [searchTerm, sortBy, showOnlyPopular, showOnSale, statusFilter, genreFilter])
+  }, [manga, searchTerm, sortBy, showOnlyPopular, showOnSale, statusFilter, genreFilter])
 
   // Pagination calculations
   const totalItems = filteredAndSortedProducts.length
@@ -270,19 +292,25 @@ export default function MangaListPage() {
         </div>
 
         {/* Products Grid/List */}
-        {currentItems.length > 0 ? (
+        {isLoading ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }, (_, index) => (
+              <SkeletonMangaCard key={index} />
+            ))}
+          </div>
+        ) : currentItems.length > 0 ? (
           <div className={
             viewMode === "grid" 
               ? "grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
               : "space-y-4"
           }>
-            {currentItems.map((manga) => (
+            {currentItems.map((mangaItem: Manga) => (
               <MangaCard
-                key={manga.id}
-                manga={manga}
+                key={mangaItem.id}
+                manga={mangaItem}
                 onAddToCart={handleAddToCart}
                 onToggleWishlist={handleToggleWishlist}
-                isInWishlist={wishlist.has(manga.id)}
+                isInWishlist={wishlist.has(mangaItem.id)}
                 className={viewMode === "list" ? "flex flex-row" : ""}
               />
             ))}
@@ -371,13 +399,13 @@ export default function MangaListPage() {
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-3xl font-bold text-pink-500 mb-2">
-                {featuredManga.length}+
+                {manga.length}+
               </div>
               <div className="text-gray-600">Manga Titles</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-pink-500 mb-2">
-                {featuredManga.filter(m => m.isPopular).length}
+                {manga.filter((m: Manga) => m.isPopular).length}
               </div>
               <div className="text-gray-600">Popular Series</div>
             </div>
@@ -389,7 +417,7 @@ export default function MangaListPage() {
             </div>
             <div>
               <div className="text-3xl font-bold text-pink-500 mb-2">
-                {featuredManga.filter(m => m.originalPrice && m.originalPrice > m.price).length}
+                {manga.filter((m: Manga) => m.originalPrice && m.originalPrice > m.price).length}
               </div>
               <div className="text-gray-600">On Sale</div>
             </div>

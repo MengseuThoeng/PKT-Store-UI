@@ -1,19 +1,22 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+// Temporarily disabled Google Fonts to fix loading issues
+// import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AnimeNavbar from "@/components/ui/navbar";
 import Footer from "@/components/customs/footer";
 import { CartProvider } from "@/lib/context/CartContext";
+import { AuthProvider } from "@/lib/context/AuthContext";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+// Temporarily using system fonts
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
+//   subsets: ["latin"],
+// });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// const geistMono = Geist_Mono({
+//   variable: "--font-geist-mono",
+//   subsets: ["latin"],
+// });
 
 export const metadata: Metadata = {
   title: {
@@ -87,14 +90,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <CartProvider>
-          <AnimeNavbar/>
-          {children}
-          <Footer />
-        </CartProvider>
+      <body className="antialiased">
+        <AuthProvider>
+          <CartProvider>
+            <AnimeNavbar/>
+            {children}
+            <Footer />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

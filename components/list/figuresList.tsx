@@ -1,8 +1,8 @@
 "use client"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { Search, Filter, Grid3X3, List, Star, Heart, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react"
 import ProductCard from "@/components/ui/figureCard"
-import { featuredProducts } from "@/lib/data/figure-data"
+import { SkeletonCard } from "@/components/ui/skeletons/SkeletonCard"
 import type { Figure } from "@/lib/types/figure"
 import { useCart } from "@/lib/context/CartContext"
 import { useToast } from "@/lib/hooks/useToast"
@@ -20,12 +20,34 @@ export default function FiguresPage() {
   const [wishlist, setWishlist] = useState<Set<number>>(new Set())
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage, setItemsPerPage] = useState(8)
+  const [isLoading, setIsLoading] = useState(true)
+  const [figures, setFigures] = useState<Figure[]>([])
   const { addItem } = useCart()
   const { toasts, addToast, removeToast } = useToast()
 
+  // Fetch data from API
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true)
+      try {
+        const response = await fetch('/api/products/figures')
+        const result = await response.json()
+        if (result.success) {
+          setFigures(result.data)
+        }
+      } catch (error) {
+        console.error('Failed to load figures:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    loadData()
+  }, [])
+
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
-    const filtered = featuredProducts.filter((figure) => {
+    const filtered = figures.filter((figure) => {
       const matchesSearch = figure.name.toLowerCase().includes(searchTerm.toLowerCase())
       const matchesNew = !showOnlyNew || figure.isNew
       const matchesOnSale = !showOnSale || (figure.originalPrice && figure.originalPrice > figure.price)
@@ -52,7 +74,7 @@ export default function FiguresPage() {
     })
 
     return filtered
-  }, [searchTerm, sortBy, showOnlyNew, showOnSale])
+  }, [figures, searchTerm, sortBy, showOnlyNew, showOnSale])
 
   // Pagination calculations
   const totalItems = filteredAndSortedProducts.length
@@ -217,7 +239,13 @@ export default function FiguresPage() {
         </div>
 
         {/* Products Grid/List */}
-        {currentItems.length > 0 ? (
+        {isLoading ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }, (_, index) => (
+              <SkeletonCard key={index} />
+            ))}
+          </div>
+        ) : currentItems.length > 0 ? (
           <div className={
             viewMode === "grid" 
               ? "grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
@@ -318,19 +346,19 @@ export default function FiguresPage() {
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div>
               <div className="text-3xl font-bold text-pink-500 mb-2">
-                {featuredProducts.length}+
+                {figures.length}+
               </div>
               <div className="text-gray-600">Premium Figures</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-pink-500 mb-2">
-                {featuredProducts.filter(f => f.isNew).length}
+                {figures.filter((f: Figure) => f.isNew).length}
               </div>
               <div className="text-gray-600">New Arrivals</div>
             </div>
             <div>
               <div className="text-3xl font-bold text-pink-500 mb-2">
-                {featuredProducts.filter(f => f.originalPrice && f.originalPrice > f.price).length}
+                {figures.filter((f: Figure) => f.originalPrice && f.originalPrice > f.price).length}
               </div>
               <div className="text-gray-600">On Sale</div>
             </div>

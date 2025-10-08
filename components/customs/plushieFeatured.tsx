@@ -1,9 +1,9 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Heart } from "lucide-react"
 import PlushieCard from "@/components/ui/plushie"
-import { featuredPlushies } from "@/lib/data/plushie-data"
+import { SkeletonPlushieCard } from "@/components/ui/skeletons/SkeletonCard"
 import type { Plushie } from "@/lib/types/plushie"
 import { useCart } from "@/lib/context/CartContext"
 import { useToast } from "@/lib/hooks/useToast"
@@ -11,8 +11,30 @@ import ToastContainer from "@/components/ui/toast"
 
 export default function FeaturedPlushies() {
   const [wishlist, setWishlist] = useState<Set<number>>(new Set())
+  const [isLoading, setIsLoading] = useState(true)
+  const [plushies, setPlushies] = useState<Plushie[]>([])
   const { addItem } = useCart()
   const { toasts, addToast, removeToast } = useToast()
+
+  // Fetch data from API
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true)
+      try {
+        const response = await fetch('/api/products/plushies?featured=true&limit=4')
+        const result = await response.json()
+        if (result.success) {
+          setPlushies(result.data)
+        }
+      } catch (error) {
+        console.error('Failed to load plushies:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    loadData()
+  }, [])
 
   const handleAddToCart = (plushie: Plushie) => {
     addItem({
@@ -60,15 +82,23 @@ export default function FeaturedPlushies() {
 
       {/* Plushies Grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {featuredPlushies.slice(0, 4).map((plushie) => (
-          <PlushieCard
-            key={plushie.id}
-            plushie={plushie}
-            onAddToCart={handleAddToCart}
-            onToggleWishlist={handleToggleWishlist}
-            isInWishlist={wishlist.has(plushie.id)}
-          />
-        ))}
+        {isLoading ? (
+          // Show skeleton cards while loading
+          Array.from({ length: 4 }, (_, index) => (
+            <SkeletonPlushieCard key={index} />
+          ))
+        ) : (
+          // Show actual plushie cards when loaded
+          plushies.slice(0, 4).map((plushie) => (
+            <PlushieCard
+              key={plushie.id}
+              plushie={plushie}
+              onAddToCart={handleAddToCart}
+              onToggleWishlist={handleToggleWishlist}
+              isInWishlist={wishlist.has(plushie.id)}
+            />
+          ))
+        )}
       </div>
 
       {/* Stats Section */}

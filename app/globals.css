@@ -211,10 +211,25 @@
   }
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
 .animate-fade-in {
   animation: fade-in 0.8s ease-out;
 }
 
 .animate-fade-in-delay {
   animation: fade-in-delay 0.8s ease-out 0.3s both;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
 }

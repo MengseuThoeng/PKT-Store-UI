@@ -1,9 +1,9 @@
 "use client"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { BookOpen } from "lucide-react"
 import MangaCard from "@/components/ui/mangaCard"
-import { featuredManga } from "@/lib/data/manga-data"
+import { SkeletonMangaCard } from "@/components/ui/skeletons/SkeletonCard"
 import type { Manga } from "@/lib/types/manga"
 import { useCart } from "@/lib/context/CartContext"
 import { useToast } from "@/lib/hooks/useToast"
@@ -11,8 +11,30 @@ import ToastContainer from "@/components/ui/toast"
 
 export default function FeaturedManga() {
   const [wishlist, setWishlist] = useState<Set<number>>(new Set())
+  const [isLoading, setIsLoading] = useState(true)
+  const [manga, setManga] = useState<Manga[]>([])
   const { addItem } = useCart()
   const { toasts, addToast, removeToast } = useToast()
+
+  // Fetch data from API
+  useEffect(() => {
+    const loadData = async () => {
+      setIsLoading(true)
+      try {
+        const response = await fetch('/api/products/manga?featured=true&limit=4')
+        const result = await response.json()
+        if (result.success) {
+          setManga(result.data)
+        }
+      } catch (error) {
+        console.error('Failed to load manga:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    loadData()
+  }, [])
 
   const handleAddToCart = (manga: Manga) => {
     addItem({
@@ -61,15 +83,23 @@ export default function FeaturedManga() {
 
       {/* Manga Grid - Adjusted for smaller cards */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {featuredManga.slice(0, 4).map((manga) => (
-          <MangaCard
-            key={manga.id}
-            manga={manga}
-            onAddToCart={handleAddToCart}
-            onToggleWishlist={handleToggleWishlist}
-            isInWishlist={wishlist.has(manga.id)}
-          />
-        ))}
+        {isLoading ? (
+          // Show skeleton cards while loading
+          Array.from({ length: 4 }, (_, index) => (
+            <SkeletonMangaCard key={index} />
+          ))
+        ) : (
+          // Show actual manga cards when loaded
+          manga.slice(0, 4).map((mangaItem) => (
+            <MangaCard
+              key={mangaItem.id}
+              manga={mangaItem}
+              onAddToCart={handleAddToCart}
+              onToggleWishlist={handleToggleWishlist}
+              isInWishlist={wishlist.has(mangaItem.id)}
+            />
+          ))
+        )}
       </div>
 
       {/* Stats Section */}
