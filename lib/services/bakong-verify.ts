@@ -28,17 +28,9 @@ export class BakongVerifyService {
     const token = process.env.BAKONG_ACCESS_TOKEN
     if (!token) {
       console.error('❌ BAKONG_ACCESS_TOKEN is not configured!')
-      console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('BAKONG')))
     } else {
-      // 🔥 Trim whitespace and newlines that might be added when copying to Vercel
       this.accessToken = token.trim()
-      console.log('✅ BAKONG_ACCESS_TOKEN is set (length:', this.accessToken.length, ')')
-      console.log('🔍 Token before trim length:', token.length)
-      console.log('🔍 Token after trim length:', this.accessToken.length)
-      // console.log('🔑 FULL ACCESS TOKEN:', this.accessToken) // 🔥 Debug: Output full token
-      if (token !== this.accessToken) {
-        console.warn('⚠️ Token had whitespace/newlines! Trimmed.')
-      }
+      console.log('✅ Bakong service initialized')
     }
   }
 
@@ -53,71 +45,39 @@ export class BakongVerifyService {
         }
       }
 
-      console.log('📡 Checking Bakong transaction with MD5:', md5)
-      console.log('🔑 Access Token (first 20 chars):', this.accessToken.substring(0, 20) + '...')
-      console.log('🔑 Access Token (last 20 chars):', '...' + this.accessToken.substring(this.accessToken.length - 20))
-      console.log('🔑 Full Token Length:', this.accessToken.length)
-      console.log('🌐 API URL:', this.apiUrl)
-      console.log('📦 Request Body:', JSON.stringify({ md5 }))
-      console.log('📡 Request Headers:', {
-        'Authorization': `Bearer ${this.accessToken.substring(0, 20)}...`,
-        'Content-Type': 'application/json',
-      })
+      console.log('� Verifying payment with MD5:', md5)
 
       const response = await fetch(this.apiUrl, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.accessToken}`,
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'User-Agent': 'PKT-Store/1.0',
         },
         body: JSON.stringify({ md5 }),
       })
 
-      console.log('📡 Bakong API Response Status:', response.status)
-      console.log('📡 Bakong API Response Headers:', Object.fromEntries(response.headers.entries()))
-      
-      // 🔥 Log response status for debugging
-      if (!response.ok) {
-        console.error('❌ Bakong API returned non-OK status:', response.status, response.statusText)
-      }
+      console.log('📡 Bakong API Response:', response.status)
       
       // Check if response is HTML (error page)
       const contentType = response.headers.get('content-type')
-      console.log('📄 Content-Type:', contentType)
       
       if (contentType && contentType.includes('text/html')) {
-        console.error('❌ Bakong returned HTML instead of JSON!')
-        const htmlText = await response.text()
-        console.error('HTML Response (full text):', htmlText)
-        console.error('This usually means:')
-        console.error('  1. IP address is blocked/not whitelisted')
-        console.error('  2. WAF/Firewall blocking cloud hosting IPs')
-        console.error('  3. Geographic restrictions')
+        console.error('❌ Bakong API error: IP may be blocked (Status:', response.status, ')')
         return {
           success: false,
           status: 'pending',
           error: 'bakong_api_error',
-          message: `Bakong API returned HTML error (Status ${response.status}). Possible IP blocking. Check if Vercel IPs are whitelisted with Bakong.`,
+          message: `Bakong API error. Status: ${response.status}. Possible IP blocking.`,
         }
       }
       
       const data = await response.json()
 
-      console.log('📦 Bakong Response Data:', {
-        responseCode: data.responseCode,
-        responseMessage: data.responseMessage,
-        errorCode: data.errorCode,
-        hasData: !!data.data,
-        fullResponse: JSON.stringify(data, null, 2)
-      })
-
       // responseCode: 0 = success, 1 = failed/not found
       if (data.responseCode === 0 && data.data) {
-        console.log('✅ Payment confirmed by Bakong!')
-        console.log('💰 Amount:', data.data.amount, data.data.currency)
-        console.log('👤 From:', data.data.fromAccountId)
-        console.log('👤 To:', data.data.toAccountId)
-
+        console.log('✅ Payment verified successfully!')
         return {
           success: true,
           status: 'completed',
@@ -133,45 +93,124 @@ export class BakongVerifyService {
         }
       }
 
-      // Error code 2 = Static QR code (Individual accounts)
-      if (data.errorCode === 2) {
-        console.log('⚠️ Individual KHQR accounts cannot be auto-verified via API')
-        console.log('💡 This is normal for personal accounts - requires manual verification')
-        console.log('📱 Error Code 2 = Static QR (Individual Account)')
-        return {
-          success: false,
-          status: 'pending',
-          message: 'Individual KHQR accounts require manual verification. Please check your banking app.',
-          error: 'static_qr_not_supported',
-        }
-      }
+      // Handle all Bakong error codes
+      switch (data.errorCode) {
+        case 1:
+          console.log('⏳ Transaction not found yet')
+          return {
+            success: false,
+            status: 'pending',
+            message: 'Transaction could not be found. Please try again.',
+            error: 'transaction_not_found',
+          }
 
-      // Transaction not found or failed
-      if (data.errorCode === 1) {
-        console.log('⏳ Transaction not found yet - still pending')
-        console.log('📱 Error Code 1 = Transaction not found')
-        return {
-          success: false,
-          status: 'pending',
-          message: 'Transaction not found - payment may not have been made yet',
-        }
-      }
+        case 2:
+          console.log('⚠️ Static QR code - Individual account')
+          return {
+            success: false,
+            status: 'pending',
+            message: 'Individual KHQR accounts require manual verification.',
+            error: 'static_qr_not_supported',
+          }
 
-      if (data.errorCode === 3) {
-        console.log('❌ Transaction failed')
-        console.log('📱 Error Code 3 = Transaction failed')
-        return {
-          success: false,
-          status: 'failed',
-          message: data.responseMessage || 'Transaction failed',
-        }
-      }
+        case 3:
+          console.log('❌ Transaction failed')
+          return {
+            success: false,
+            status: 'failed',
+            message: data.responseMessage || 'Transaction failed',
+            error: 'transaction_failed',
+          }
 
-      console.log('⚠️ Unexpected Bakong response:', data)
-      return {
-        success: false,
-        status: 'pending',
-        message: data.responseMessage || 'Unknown status',
+        case 4:
+          console.error('❌ Deeplink error')
+          return {
+            success: false,
+            status: 'failed',
+            message: 'Error occurred on requesting deeplink from provider',
+            error: 'deeplink_error',
+          }
+
+        case 5:
+          console.error('❌ Missing required fields')
+          return {
+            success: false,
+            status: 'failed',
+            message: 'Missing required fields',
+            error: 'missing_fields',
+          }
+
+        case 6:
+          console.error('❌ Unauthorized')
+          return {
+            success: false,
+            status: 'failed',
+            message: 'Unauthorized - Invalid access token',
+            error: 'unauthorized',
+          }
+
+        case 7:
+          console.error('❌ Email server down')
+          return {
+            success: false,
+            status: 'pending',
+            message: 'Email server has been down',
+            error: 'email_server_down',
+          }
+
+        case 8:
+          console.error('❌ Email already registered')
+          return {
+            success: false,
+            status: 'failed',
+            message: 'Email has been registered already',
+            error: 'email_registered',
+          }
+
+        case 9:
+          console.error('❌ Cannot connect to server')
+          return {
+            success: false,
+            status: 'pending',
+            message: 'Cannot connect to server. Please try again later.',
+            error: 'server_connection_error',
+          }
+
+        case 10:
+          console.error('❌ Not registered')
+          return {
+            success: false,
+            status: 'failed',
+            message: 'Not registered yet',
+            error: 'not_registered',
+          }
+
+        case 11:
+          console.error('❌ Account ID not found')
+          return {
+            success: false,
+            status: 'failed',
+            message: 'Account ID not found',
+            error: 'account_not_found',
+          }
+
+        case 12:
+          console.error('❌ Invalid Account ID')
+          return {
+            success: false,
+            status: 'failed',
+            message: 'Account ID is invalid',
+            error: 'invalid_account',
+          }
+
+        default:
+          console.log('⚠️ Unknown error code:', data.errorCode)
+          return {
+            success: false,
+            status: 'pending',
+            message: data.responseMessage || 'Unknown status',
+            error: 'unknown_error',
+          }
       }
     } catch (error) {
       console.error('❌ Bakong verification error:', error)

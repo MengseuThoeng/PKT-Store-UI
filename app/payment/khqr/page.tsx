@@ -126,10 +126,10 @@ export default function KHQRPaymentPage() {
       setTransactionId(data.transactionId)
       setLoading(false)
 
-      // Start checking payment status every 5 seconds
+      // Start checking payment status every 20 seconds
       statusCheckInterval.current = setInterval(() => {
         checkPaymentStatus(data.transactionId)
-      }, 5000)
+      }, 20000) // Changed from 5000 to 20000 (20 seconds)
     } catch (err) {
       console.error('❌ QR Generation Error:', err)
       setError(err instanceof Error ? err.message : 'Failed to generate QR code')
@@ -141,7 +141,6 @@ export default function KHQRPaymentPage() {
     try {
       // Don't make request if component is unmounted
       if (!isMounted.current) {
-        // console.log('⚠️ Component unmounted, stopping checks')
         if (statusCheckInterval.current) {
           clearInterval(statusCheckInterval.current)
           statusCheckInterval.current = null
@@ -149,15 +148,12 @@ export default function KHQRPaymentPage() {
         return
       }
 
-      console.log('🔍 Checking payment status for transaction:', txnId)
+      console.log('🔍 Checking payment status...')
       const response = await fetch(`/api/payment/khqr?transactionId=${txnId}`)
-      
-      console.log('📡 Response status:', response.status)
       
       // If transaction not found (404), stop checking
       if (response.status === 404) {
-        console.warn('⚠️ Transaction not found, stopping status checks')
-        console.error('❌ DEBUG: Transaction not found (404). Transaction ID:', txnId)
+        console.error('❌ Transaction not found')
         if (statusCheckInterval.current) {
           clearInterval(statusCheckInterval.current)
           statusCheckInterval.current = null
@@ -166,49 +162,22 @@ export default function KHQRPaymentPage() {
       }
       
       const data = await response.json()
-      
-      // 🔥 DEBUG CONSOLE - Show what we got from API
-      console.log('📦 Payment check response:', data)
-      console.log('🔍 DEBUG - Payment Status Check:')
-      console.log('  Transaction ID:', txnId)
-      console.log('  MD5 Hash:', data.md5 || 'NOT FOUND IN RESPONSE')
-      console.log('  Success:', data.success)
-      console.log('  Status:', data.status)
-      console.log('  Message:', data.message || 'N/A')
-      console.log('  Error:', data.error || 'N/A')
-      console.log('  Bakong Error:', data.bakongError || 'N/A')
-      console.log('  Bakong Message:', data.bakongMessage || 'N/A')
-      console.log('  Has Bakong Data:', !!data.bakongData)
-      
-      if (data.bakongError === 'static_qr_not_supported') {
-        console.warn('⚠️ Individual KHQR account detected! Bakong API cannot auto-verify personal accounts.')
-      }
-      if (data.message?.includes('not found')) {
-        console.warn('⏳ Payment not detected by Bakong yet.')
-      }
-      console.log('Full Response:', JSON.stringify(data, null, 2))
+      console.log('📦 Status:', data.status)
 
       // Check if still mounted before updating state
       if (!isMounted.current) {
-        console.log('⚠️ Component unmounted during request, ignoring response')
         return
       }
 
       if (data.success && data.status === 'completed') {
-        console.log('✅ Payment confirmed! Order created automatically on server.')
-        console.log('✅ SUCCESS! Payment confirmed by Bakong API. Redirecting to orders...')
+        console.log('✅ Payment confirmed! Redirecting...')
         setPaymentStatus('success')
         
         // Clear interval IMMEDIATELY
         if (statusCheckInterval.current) {
           clearInterval(statusCheckInterval.current)
           statusCheckInterval.current = null
-          console.log('🛑 Status check interval stopped')
         }
-
-        // Order is already created automatically by the payment verification API
-        // No need to call /api/orders/create anymore!
-        console.log('📦 Order was auto-created by payment verification')
 
         // Clear cart
         clearCart()
@@ -218,24 +187,19 @@ export default function KHQRPaymentPage() {
           router.push('/orders?payment=success')
         }, 1000)
       } else if (data.status === 'failed') {
-        console.log('❌ Payment failed! Stopping checks...')
-        console.error('❌ Payment verification FAILED! Reason:', data.error || data.message || 'Unknown')
+        console.error('❌ Payment failed')
         setPaymentStatus('failed')
         setError('Payment failed. Please try again.')
         
         if (statusCheckInterval.current) {
           clearInterval(statusCheckInterval.current)
           statusCheckInterval.current = null
-          console.log('🛑 Status check interval stopped')
         }
       } else {
-        // Still pending
-        console.log('⏳ Payment still pending...')
-        console.log('⏳ Still PENDING... Status:', data.status, 'Message:', data.message || 'Waiting for payment')
+        console.log('⏳ Still waiting for payment...')
       }
     } catch (err) {
-      console.error('❌ Status Check Error:', err)
-      console.error('❌ ERROR checking payment status:', err instanceof Error ? err.message : String(err))
+      console.error('❌ Error checking payment:', err)
       // Don't stop interval on network errors, keep trying
     }
   }
