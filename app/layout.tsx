@@ -1,22 +1,8 @@
 import type { Metadata } from "next";
-// Temporarily disabled Google Fonts to fix loading issues
-// import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import AnimeNavbar from "@/components/ui/navbar";
-import Footer from "@/components/customs/footer";
+import ConditionalLayout from "@/components/ui/ConditionalLayout";
 import { CartProvider } from "@/lib/context/CartContext";
 import { AuthProvider } from "@/lib/context/AuthContext";
-
-// Temporarily using system fonts
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
 
 export const metadata: Metadata = {
   title: {
@@ -53,7 +39,7 @@ export const metadata: Metadata = {
     siteName: 'PKT Store',
     images: [
       {
-        url: '/images/pkt-store-og.jpg', // We'll create this
+        url: '/images/pkt-store-og.jpg',
         width: 1200,
         height: 630,
         alt: 'PKT Store - Premium Anime Merchandise',
@@ -64,8 +50,8 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'PKT Store - Premium Anime Figures, Manga & Plushies',
     description: 'Discover premium anime figures, manga collections, and plushies at PKT Store Cambodia.',
-    images: ['/images/pkt-store-twitter.jpg'], // We'll create this
-    creator: '@PKTStore', // Replace with your Twitter handle
+    images: ['/images/pkt-store-twitter.jpg'],
+    creator: '@PKTStore',
   },
   robots: {
     index: true,
@@ -79,7 +65,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'your-google-verification-code', // Replace with your Google verification code
+    google: 'your-google-verification-code',
   },
 };
 
@@ -93,9 +79,9 @@ export default function RootLayout({
       <body className="antialiased">
         <AuthProvider>
           <CartProvider>
-            <AnimeNavbar/>
-            {children}
-            <Footer />
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
           </CartProvider>
         </AuthProvider>
       </body>

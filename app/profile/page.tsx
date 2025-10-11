@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/context/AuthContext'
 import { useRouter } from 'next/navigation'
+import AdminGuard from '@/components/ui/AdminGuard'
 import { 
   User, 
   Mail, 
@@ -267,16 +268,17 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 py-12">
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-      
-      <div className="max-w-6xl mx-auto px-4">
-        {/* Header */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-20 h-20 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                {user.name.charAt(0).toUpperCase()}
+    <AdminGuard>
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 py-12">
+        <ToastContainer toasts={toasts} onRemove={removeToast} />
+        
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Header */}
+          <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 bg-gradient-to-br from-pink-400 to-rose-500 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                  {user.name.charAt(0).toUpperCase()}
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-800">{user.name}</h1>
@@ -711,7 +713,8 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </AdminGuard>
   )
 }

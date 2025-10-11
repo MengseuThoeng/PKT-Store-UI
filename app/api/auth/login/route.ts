@@ -102,9 +102,11 @@ export async function POST(request: Request) {
         isVerified: user.is_verified,
         emailVerified: user.email_verified,
         phoneVerified: user.phone_verified,
+        isAdmin: user.is_admin || false,
         createdAt: user.created_at,
         lastLogin: new Date().toISOString(),
       },
+      isAdmin: user.is_admin || false,
     })
   } catch (error: any) {
     console.error('Login error:', error)

@@ -40,6 +40,7 @@ export async function GET() {
         isVerified: customer.is_verified,
         emailVerified: customer.email_verified,
         phoneVerified: customer.phone_verified,
+        isAdmin: customer.is_admin || false,
       },
     })
   } catch (error: any) {

@@ -48,8 +48,8 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    // Import bcrypt to verify password
-    const bcrypt = require('bcrypt');
+    // Verify password
+    const bcrypt = await import('bcryptjs');
     const passwordMatch = await bcrypt.compare(confirmPassword, customer.password_hash);
 
     if (!passwordMatch) {

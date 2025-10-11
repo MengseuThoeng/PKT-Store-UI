@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/context/AuthContext';
+import AdminGuard from '@/components/ui/AdminGuard';
 import { 
   Settings as SettingsIcon, 
   Bell, 
@@ -167,11 +168,12 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 py-12 px-4 sm:px-6 lg:px-8">
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-      
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
+    <AdminGuard>
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 py-12 px-4 sm:px-6 lg:px-8">
+        <ToastContainer toasts={toasts} onRemove={removeToast} />
+        
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <div className="p-3 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl shadow-lg">
@@ -471,6 +473,7 @@ export default function SettingsPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </AdminGuard>
   );
 }

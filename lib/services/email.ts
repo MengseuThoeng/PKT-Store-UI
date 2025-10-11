@@ -337,3 +337,160 @@ export async function sendWelcomeEmail(email: string, name: string) {
 
   return sendEmail({ to: email, subject, html })
 }
+
+/**
+ * Send order confirmation email when admin confirms order
+ */
+export async function sendOrderConfirmationEmail(
+  email: string,
+  customerName: string,
+  orderDetails: {
+    orderNumber: string;
+    totalAmount: number;
+    customerAddress: string;
+    items: Array<{
+      product_name: string;
+      quantity: number;
+      price: number;
+    }>;
+  }
+) {
+  const subject = `✅ Order Confirmed - ${orderDetails.orderNumber}`
+  
+  const itemsHtml = orderDetails.items.map(item => `
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb;">${item.product_name}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: center;">${item.quantity}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right;">$${item.price.toFixed(2)}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600;">$${(item.quantity * item.price).toFixed(2)}</td>
+    </tr>
+  `).join('')
+  
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          margin: 0;
+          padding: 20px;
+        }
+        .container {
+          max-width: 600px;
+          margin: 0 auto;
+          background: white;
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .header {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          padding: 40px 20px;
+          text-align: center;
+          color: white;
+        }
+        .content {
+          padding: 40px 30px;
+        }
+        .status-badge {
+          display: inline-block;
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+          padding: 10px 20px;
+          border-radius: 50px;
+          font-weight: 600;
+          margin: 20px 0;
+        }
+        .info-box {
+          background: #f0fdf4;
+          border-left: 4px solid #10b981;
+          padding: 20px;
+          margin: 20px 0;
+          border-radius: 8px;
+        }
+        .order-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin: 20px 0;
+        }
+        .total-row {
+          background: #f9fafb;
+          font-weight: bold;
+          font-size: 18px;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1 style="font-size: 48px; margin: 0;">✅</h1>
+          <h2 style="margin: 10px 0;">Order Confirmed!</h2>
+          <p style="margin: 5px 0;">Your order is being prepared</p>
+        </div>
+        <div class="content">
+          <h2 style="color: #1f2937;">Hi ${customerName}! 👋</h2>
+          <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+            Great news! We've confirmed your order and it's now being prepared for delivery.
+          </p>
+
+          <div class="info-box">
+            <p style="margin: 0 0 10px 0;"><strong>📦 Order Number:</strong> ${orderDetails.orderNumber}</p>
+            <p style="margin: 0 0 10px 0;"><strong>📍 Delivery Address:</strong> ${orderDetails.customerAddress}</p>
+            <p style="margin: 0;"><strong>💰 Total Amount:</strong> $${orderDetails.totalAmount.toFixed(2)}</p>
+          </div>
+
+          <h3 style="color: #1f2937; margin-top: 30px;">Order Items:</h3>
+          <table class="order-table">
+            <thead>
+              <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                <th style="padding: 12px; text-align: left;">Product</th>
+                <th style="padding: 12px; text-align: center;">Qty</th>
+                <th style="padding: 12px; text-align: right;">Price</th>
+                <th style="padding: 12px; text-align: right;">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td colspan="3" style="padding: 15px; text-align: right;">Total:</td>
+                <td style="padding: 15px; text-align: right; color: #10b981;">$${orderDetails.totalAmount.toFixed(2)}</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; margin: 30px 0; border-radius: 8px;">
+            <h3 style="margin: 0 0 10px 0; color: #1e40af;">📋 What's Next?</h3>
+            <ol style="margin: 10px 0; padding-left: 20px; color: #1e3a8a;">
+              <li>Your order is being packed</li>
+              <li>We'll notify you when it's out for delivery</li>
+              <li>Track your order status anytime in your account</li>
+            </ol>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL}/orders" 
+               style="display: inline-block; background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 50px; font-weight: 600;">
+              Track Order →
+            </a>
+          </div>
+
+          <p style="color: #6b7280; font-size: 14px; margin-top: 30px; text-align: center;">
+            💡 Questions? Contact us anytime at ${process.env.GMAIL_USER}
+          </p>
+        </div>
+        <div style="background: #f9fafb; padding: 30px; text-align: center; color: #6b7280; font-size: 12px;">
+          <p style="margin: 0;">Thank you for shopping with PKT Store! 🎌</p>
+          <p style="margin: 10px 0 0 0;">© ${new Date().getFullYear()} PKT Store. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+
+  return sendEmail({ to: email, subject, html })
+}
+

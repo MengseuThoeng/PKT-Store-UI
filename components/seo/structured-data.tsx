@@ -71,7 +71,7 @@ export const storeSchema: Store = {
     addressLocality: 'Phnom Penh',
     addressRegion: 'Phnom Penh'
   },
-  paymentAccepted: ['ABA Bank', 'ACLEDA Bank', 'Wing', 'Cash on Delivery'],
+  paymentAccepted: ['KHQR', 'Cash on Delivery'],
   currenciesAccepted: 'USD',
   openingHours: 'Mo-Su 09:00-20:00'
 }

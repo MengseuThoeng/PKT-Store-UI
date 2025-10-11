@@ -9,7 +9,7 @@ export interface CustomerInfo {
 }
 
 export interface PaymentMethod {
-  type: 'ABA' | 'ACLEDA' | 'WING' | 'COD'
+  type: 'KHQR' | 'COD'
   label: string
   icon: string
   description: string

@@ -6,6 +6,7 @@ export interface User {
   isVerified: boolean
   emailVerified: boolean
   phoneVerified: boolean
+  isAdmin?: boolean
   createdAt: string
   lastLogin?: string
 }

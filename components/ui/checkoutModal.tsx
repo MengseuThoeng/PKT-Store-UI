@@ -14,22 +14,10 @@ interface CheckoutModalProps {
 
 const paymentMethods: PaymentMethod[] = [
   {
-    type: 'ABA',
-    label: 'ABA Bank',
-    icon: '🏦',
-    description: 'Transfer to ABA account'
-  },
-  {
-    type: 'ACLEDA',
-    label: 'ACLEDA Bank',
-    icon: '🏛️',
-    description: 'Transfer to ACLEDA account'
-  },
-  {
-    type: 'WING',
-    label: 'WING',
-    icon: '📱',
-    description: 'Mobile payment via WING'
+    type: 'KHQR',
+    label: 'KHQR Payment',
+    icon: '�',
+    description: 'Scan & Pay with any bank'
   },
   {
     type: 'COD',
@@ -79,10 +67,27 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit }: CheckoutMod
     
     setIsLoading(true)
     try {
-      await onSubmit({
-        customer: customerInfo,
-        paymentMethod: selectedPayment
-      })
+      // For KHQR, redirect to payment page
+      if (selectedPayment.type === 'KHQR') {
+        // Save customer info to localStorage
+        localStorage.setItem('customerName', customerInfo.name)
+        localStorage.setItem('customerEmail', customerInfo.email)
+        localStorage.setItem('customerPhone', customerInfo.phone)
+        localStorage.setItem('customerAddress', customerInfo.address)
+        localStorage.setItem('telegramUsername', customerInfo.telegramUsername)
+        
+        onClose()
+        router.push('/payment/khqr')
+      } else {
+        // For COD, just submit the order
+        await onSubmit({
+          customer: customerInfo,
+          paymentMethod: selectedPayment
+        })
+      }
+    } catch (error) {
+      console.error('Checkout error:', error)
+      alert('Failed to process order. Please try again.')
     } finally {
       setIsLoading(false)
     }

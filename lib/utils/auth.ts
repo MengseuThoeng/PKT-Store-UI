@@ -184,7 +184,9 @@ export async function verifySession(token: string) {
         email,
         phone,
         is_verified,
-        email_verified
+        email_verified,
+        phone_verified,
+        is_admin
       )
     `)
     .eq('token', token)

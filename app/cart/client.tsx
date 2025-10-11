@@ -1,15 +1,82 @@
 "use client"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useCart } from '@/lib/context/CartContext'
+import { useAuth } from '@/lib/context/AuthContext'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowLeft, Minus, Plus, Trash2, ShoppingBag, Heart } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft, Minus, Plus, Trash2, ShoppingBag, Heart, Loader2, AlertCircle, Shield } from 'lucide-react'
 import CheckoutModal from '@/components/ui/checkoutModal'
 import type { CheckoutFormData } from '@/lib/types/order'
 
 export default function CartPage() {
   const { items, totalItems, totalPrice, updateQuantity, removeItem, clearCart } = useCart()
+  const { user, isLoading } = useAuth()
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false)
+  const router = useRouter()
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/login?redirect=/cart')
+    }
+  }, [user, isLoading, router])
+
+  // Show loading while checking auth
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-pink-500 mx-auto mb-4" />
+          <p className="text-gray-600">Loading cart...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render cart if not logged in
+  if (!user) {
+    return null
+  }
+
+  return (
+    <CartPageContent 
+      items={items}
+      totalItems={totalItems}
+      totalPrice={totalPrice}
+      updateQuantity={updateQuantity}
+      removeItem={removeItem}
+      clearCart={clearCart}
+      user={user}
+      isCheckoutModalOpen={isCheckoutModalOpen}
+      setIsCheckoutModalOpen={setIsCheckoutModalOpen}
+    />
+  );
+}
+
+function CartPageContent({ 
+  items, 
+  totalItems, 
+  totalPrice, 
+  updateQuantity, 
+  removeItem, 
+  clearCart,
+  user,
+  isCheckoutModalOpen,
+  setIsCheckoutModalOpen
+}: any) {
+  const router = useRouter()
+  const [showAdminWarning, setShowAdminWarning] = useState(false)
+
+  const handleCheckoutClick = () => {
+    // Check if user is admin
+    if (user?.isAdmin) {
+      setShowAdminWarning(true)
+      setTimeout(() => setShowAdminWarning(false), 3000)
+      return
+    }
+    setIsCheckoutModalOpen(true)
+  }
 
   const handleCheckout = async (data: CheckoutFormData) => {
     try {
@@ -131,7 +198,7 @@ export default function CartPage() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {items.map((item) => (
+            {items.map((item: any) => (
               <div key={`${item.type}-${item.id}`} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                 <div className="flex gap-4">
                   {/* Product Image */}
@@ -248,12 +315,35 @@ export default function CartPage() {
               </div>
 
               <div className="space-y-3">
+                {/* Admin Warning Toast */}
+                {showAdminWarning && (
+                  <div className="bg-red-50 border-2 border-red-500 text-red-800 px-4 py-3 rounded-xl flex items-center gap-3 animate-bounce">
+                    <Shield className="w-6 h-6 text-red-600 flex-shrink-0" />
+                    <div>
+                      <p className="font-bold text-sm">Admin Account Restriction</p>
+                      <p className="text-xs">Admins can't buy shit! 😂 Use a customer account to checkout.</p>
+                    </div>
+                  </div>
+                )}
+
                 <button 
-                  onClick={() => setIsCheckoutModalOpen(true)}
-                  className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-4 rounded-xl font-bold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                  onClick={handleCheckoutClick}
+                  className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 ${
+                    user?.isAdmin 
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                      : 'bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:shadow-lg transform hover:scale-105'
+                  }`}
                 >
-                  Proceed to Checkout
+                  {user?.isAdmin ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Shield className="w-5 h-5" />
+                      Admin Can't Checkout
+                    </span>
+                  ) : (
+                    'Proceed to Checkout'
+                  )}
                 </button>
+                
                 <button className="w-full border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-all flex items-center justify-center gap-2">
                   <Heart className="w-5 h-5" />
                   Save for Later

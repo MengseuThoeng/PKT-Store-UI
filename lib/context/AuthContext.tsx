@@ -1,5 +1,5 @@
 "use client"
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
 import type { User, AuthContextType, LoginData, RegisterData, OTPVerification, OTPRequest, PasswordReset, AuthResponse } from '@/lib/types/auth'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -7,26 +7,60 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [sessionCheckInterval, setSessionCheckInterval] = useState<NodeJS.Timeout | null>(null)
 
-  // Check session on mount
+  // Check session on mount and periodically
   useEffect(() => {
     checkSession()
+
+    // Check session every 5 minutes to keep auth fresh
+    const interval = setInterval(() => {
+      console.log('🔄 Periodic session check...')
+      checkSession()
+    }, 5 * 60 * 1000) // 5 minutes
+
+    setSessionCheckInterval(interval)
+
+    // Cleanup on unmount
+    return () => {
+      if (interval) clearInterval(interval)
+    }
   }, [])
 
-  async function checkSession() {
+  // Also check session when tab becomes visible again
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('👁️ Tab visible - checking session...')
+        checkSession()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [])
+
+  const checkSession = useCallback(async () => {
     try {
-      const response = await fetch('/api/auth/session')
+      const response = await fetch('/api/auth/session', {
+        credentials: 'include', // Important: include cookies
+      })
       const data = await response.json()
 
       if (data.success && data.user) {
         setUser(data.user)
+        console.log('✅ Session valid:', data.user.email)
+      } else {
+        setUser(null)
+        console.log('❌ Session invalid or expired')
       }
     } catch (error) {
-      console.error('Session check failed:', error)
+      console.error('❌ Session check failed:', error)
+      setUser(null)
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
   async function register(data: RegisterData): Promise<AuthResponse> {
     try {
@@ -54,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include cookies
         body: JSON.stringify(data),
       })
 
@@ -61,6 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (result.success && result.user) {
         setUser(result.user)
+        console.log('✅ Login successful:', result.user.email)
         return { success: true, user: result.user, token: result.token }
       }
 
@@ -72,8 +108,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function logout(): Promise<void> {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' })
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include' // Include cookies
+      })
       setUser(null)
+      console.log('✅ Logout successful')
     } catch (error) {
       console.error('Logout failed:', error)
     }

@@ -1,5 +1,7 @@
 "use client"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/context/AuthContext"
 import Image from "next/image"
 import Link from "next/link"
 import { ShoppingCart, Heart, Star, BookOpen, Eye } from "lucide-react"
@@ -21,12 +23,24 @@ export default function MangaCard({
   className = "",
 }: MangaCardProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const { user } = useAuth()
+  const router = useRouter()
 
   const handleAddToCart = () => {
+    // Require login to add to cart
+    if (!user) {
+      router.push('/login?redirect=/manga')
+      return
+    }
     onAddToCart?.(manga)
   }
 
   const handleToggleWishlist = () => {
+    // Require login for wishlist
+    if (!user) {
+      router.push('/login?redirect=/manga')
+      return
+    }
     onToggleWishlist?.(manga.id)
   }
 

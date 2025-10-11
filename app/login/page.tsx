@@ -30,12 +30,20 @@ export default function LoginPage() {
       const result = await login(formData)
 
       if (result.success) {
-        // Redirect to home or previous page
         addToast('Login successful! Welcome back.', 'success')
-        setTimeout(() => {
-          router.push('/')
-          router.refresh()
-        }, 500)
+        
+        // Check if user is admin and redirect accordingly
+        if (result.user?.isAdmin) {
+          setTimeout(() => {
+            router.push('/admin')
+            router.refresh()
+          }, 500)
+        } else {
+          setTimeout(() => {
+            router.push('/')
+            router.refresh()
+          }, 500)
+        }
       } else {
         setError(result.error || 'Login failed')
         addToast(result.error || 'Login failed', 'error')

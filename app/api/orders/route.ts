@@ -27,20 +27,27 @@ export async function GET(request: NextRequest) {
 
     const customerId = sessionResult.session.customer_id;
 
+    console.log('📋 Fetching orders for customer_id:', customerId, 'email:', sessionResult.session.email);
+
     // Fetch user's orders with order items
+    // Match by customer_id OR customer_email (for orders created before login)
+    const customerEmail = sessionResult.session.email;
+    
     const { data: orders, error: ordersError } = await supabase
       .from('orders')
       .select('*')
-      .eq('customer_id', customerId)
+      .or(`customer_id.eq.${customerId},customer_email.eq.${customerEmail}`)
       .order('created_at', { ascending: false });
 
     if (ordersError) {
-      console.error('Error fetching orders:', ordersError);
+      console.error('❌ Error fetching orders:', ordersError);
       return NextResponse.json(
         { error: 'Failed to fetch orders' },
         { status: 500 }
       );
     }
+
+    console.log('✅ Found', orders?.length || 0, 'orders for user');
 
     // Fetch order items for all orders
     const orderIds = orders.map(order => order.id);

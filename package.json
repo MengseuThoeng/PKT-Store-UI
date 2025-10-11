@@ -14,6 +14,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@supabase/supabase-js": "^2.74.0",
     "@tabler/icons-react": "^3.34.1",
+    "@types/qrcode": "^1.5.5",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -25,11 +26,13 @@
     "motion": "^12.23.9",
     "next": "15.4.4",
     "nodemailer": "^7.0.9",
+    "qrcode": "^1.5.4",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "resend": "^6.1.2",
     "schema-dts": "^1.1.5",
     "tailwind-merge": "^3.3.1",
+    "ts-khqr": "^2.2.2",
     "tsx": "^4.20.6"
   },
   "devDependencies": {
