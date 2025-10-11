@@ -30,8 +30,14 @@ export class BakongVerifyService {
       console.error('❌ BAKONG_ACCESS_TOKEN is not configured!')
       console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('BAKONG')))
     } else {
-      this.accessToken = token
-      console.log('✅ BAKONG_ACCESS_TOKEN is set (length:', token.length, ')')
+      // 🔥 Trim whitespace and newlines that might be added when copying to Vercel
+      this.accessToken = token.trim()
+      console.log('✅ BAKONG_ACCESS_TOKEN is set (length:', this.accessToken.length, ')')
+      console.log('🔍 Token before trim length:', token.length)
+      console.log('🔍 Token after trim length:', this.accessToken.length)
+      if (token !== this.accessToken) {
+        console.warn('⚠️ Token had whitespace/newlines! Trimmed.')
+      }
     }
   }
 
@@ -48,7 +54,14 @@ export class BakongVerifyService {
 
       console.log('📡 Checking Bakong transaction with MD5:', md5)
       console.log('🔑 Access Token (first 20 chars):', this.accessToken.substring(0, 20) + '...')
+      console.log('🔑 Access Token (last 20 chars):', '...' + this.accessToken.substring(this.accessToken.length - 20))
+      console.log('🔑 Full Token Length:', this.accessToken.length)
       console.log('🌐 API URL:', this.apiUrl)
+      console.log('📦 Request Body:', JSON.stringify({ md5 }))
+      console.log('📡 Request Headers:', {
+        'Authorization': `Bearer ${this.accessToken.substring(0, 20)}...`,
+        'Content-Type': 'application/json',
+      })
 
       const response = await fetch(this.apiUrl, {
         method: 'POST',
@@ -64,10 +77,13 @@ export class BakongVerifyService {
       
       // Check if response is HTML (error page)
       const contentType = response.headers.get('content-type')
+      console.log('📄 Content-Type:', contentType)
+      
       if (contentType && contentType.includes('text/html')) {
         console.error('❌ Bakong returned HTML instead of JSON!')
         const htmlText = await response.text()
-        console.error('HTML Response (first 500 chars):', htmlText.substring(0, 500))
+        console.error('HTML Response (first 1000 chars):', htmlText.substring(0, 1000))
+        console.error('HTML Response (last 500 chars):', htmlText.substring(Math.max(0, htmlText.length - 500)))
         return {
           success: false,
           status: 'pending',
