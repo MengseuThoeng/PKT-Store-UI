@@ -14,7 +14,7 @@ export default function KHQRPaymentPage() {
   const [error, setError] = useState<string>('')
   const [transactionId, setTransactionId] = useState<string>('')
   const [paymentStatus, setPaymentStatus] = useState<'pending' | 'success' | 'failed'>('pending')
-  const [timeLeft, setTimeLeft] = useState(15 * 60) // 15 minutes
+  const [timeLeft, setTimeLeft] = useState(3 * 60) // 3 minutes
   const statusCheckInterval = useRef<NodeJS.Timeout | null>(null)
   const isMounted = useRef(true)
 
@@ -295,7 +295,8 @@ export default function KHQRPaymentPage() {
                       {/* Center Dollar Icon Overlay */}
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         <div className="bg-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg">
-                          <span className="text-2xl">$</span>
+                          {/* DOLLAR */}
+                          <span className="text-2xl"><strong>$</strong></span>
                         </div>
                       </div>
                     </div>

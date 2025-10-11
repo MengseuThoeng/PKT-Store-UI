@@ -101,6 +101,19 @@ export default function RegisterPage() {
     }
   }
 
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault()
+    const pastedData = e.clipboardData.getData('text').trim()
+    
+    // Check if pasted data is exactly 6 digits
+    if (/^\d{6}$/.test(pastedData)) {
+      const digits = pastedData.split('')
+      setOtp(digits)
+      // Focus the last input
+      document.getElementById('otp-5')?.focus()
+    }
+  }
+
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
@@ -203,6 +216,7 @@ export default function RegisterPage() {
                       maxLength={1}
                       value={digit}
                       onChange={(e) => handleOtpChange(index, e.target.value)}
+                      onPaste={handleOtpPaste}
                       onKeyDown={(e) => {
                         if (e.key === 'Backspace' && !digit && index > 0) {
                           document.getElementById(`otp-${index - 1}`)?.focus()

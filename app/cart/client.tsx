@@ -75,7 +75,8 @@ function CartPageContent({
       setTimeout(() => setShowAdminWarning(false), 3000)
       return
     }
-    setIsCheckoutModalOpen(true)
+    // Navigate to checkout page instead of opening modal
+    router.push('/checkout')
   }
 
   const handleCheckout = async (data: CheckoutFormData) => {

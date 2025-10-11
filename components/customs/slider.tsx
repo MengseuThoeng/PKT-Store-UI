@@ -13,7 +13,7 @@ const slides = [
     title: "New Manga Collection",
     subtitle: "Discover the latest chapters from your favorite series",
     cta: "Shop Manga",
-    gradient: "from-pink-500/80 to-purple-600/80",
+    gradient: "from-slate-800/60 to-slate-900/60",
   },
   {
     id: 2,
@@ -21,7 +21,7 @@ const slides = [
     title: "Premium Figures",
     subtitle: "Collectible figures from top anime series",
     cta: "Browse Figures",
-    gradient: "from-rose-500/80 to-pink-600/80",
+    gradient: "from-gray-800/60 to-gray-900/60",
   },
   {
     id: 3,
@@ -29,7 +29,7 @@ const slides = [
     title: "Adorable Plushies",
     subtitle: "Soft and cuddly companions for every fan",
     cta: "View Plushies",
-    gradient: "from-pink-400/80 to-rose-500/80",
+    gradient: "from-neutral-800/60 to-neutral-900/60",
   },
 ]
 
@@ -85,7 +85,7 @@ export default function HeroCarousel() {
             />
 
             {/* Gradient Overlay */}
-            <div className={`absolute inset-0 bg-gradient-to-r ${slide.gradient} opacity-80`} />
+            <div className={`absolute inset-0 bg-gradient-to-r ${slide.gradient}`} />
 
             {/* Content */}
             <div className="absolute inset-0 flex items-center justify-center text-center text-white z-10">
@@ -96,7 +96,7 @@ export default function HeroCarousel() {
                 </p>
                 <Button
                   size="lg"
-                  className="bg-white text-pink-600 hover:bg-pink-50 hover:text-pink-700 font-semibold px-12 py-4 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                  className="bg-white text-gray-800 hover:bg-gray-100 hover:text-gray-900 font-semibold px-12 py-4 text-lg rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                 >
                   {slide.cta}
                 </Button>

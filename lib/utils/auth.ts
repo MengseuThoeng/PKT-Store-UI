@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'
 import { createServerSupabaseClient } from '@/lib/db/supabase'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this'
-const OTP_EXPIRY_MINUTES = 5
+const OTP_EXPIRY_MINUTES = 3
 
 /**
  * Hash password using bcrypt

@@ -137,17 +137,29 @@ function AdminOrdersContent() {
           icon: <Clock className="w-4 h-4" />,
           gradient: 'from-yellow-400 to-orange-500'
         };
+      case 'confirmed':
+        return {
+          color: 'bg-green-50 text-green-700 border-green-200',
+          icon: <CheckCircle className="w-4 h-4" />,
+          gradient: 'from-green-400 to-emerald-500'
+        };
       case 'processing':
         return {
           color: 'bg-blue-50 text-blue-700 border-blue-200',
           icon: <Truck className="w-4 h-4" />,
           gradient: 'from-blue-400 to-cyan-500'
         };
+      case 'completed':
+        return {
+          color: 'bg-purple-50 text-purple-700 border-purple-200',
+          icon: <CheckCircle className="w-4 h-4" />,
+          gradient: 'from-purple-400 to-pink-500'
+        };
       case 'delivered':
         return {
-          color: 'bg-green-50 text-green-700 border-green-200',
+          color: 'bg-teal-50 text-teal-700 border-teal-200',
           icon: <CheckCircle className="w-4 h-4" />,
-          gradient: 'from-green-400 to-emerald-500'
+          gradient: 'from-teal-400 to-cyan-500'
         };
       case 'cancelled':
         return {
@@ -167,7 +179,9 @@ function AdminOrdersContent() {
   const statusTabs = [
     { label: 'All Orders', value: 'all', count: orders.length },
     { label: 'Pending', value: 'pending', count: orders.filter(o => o.status === 'pending').length },
+    { label: 'Confirmed', value: 'confirmed', count: orders.filter(o => o.status === 'confirmed').length },
     { label: 'Processing', value: 'processing', count: orders.filter(o => o.status === 'processing').length },
+    { label: 'Completed', value: 'completed', count: orders.filter(o => o.status === 'completed').length },
     { label: 'Delivered', value: 'delivered', count: orders.filter(o => o.status === 'delivered').length },
   ];
 
@@ -325,6 +339,14 @@ function AdminOrdersContent() {
                             <div className="flex items-center justify-end gap-2">
                               {order.status === 'pending' && (
                                 <button
+                                  onClick={() => updateOrderStatus(order.id, 'confirmed')}
+                                  className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-medium rounded-lg hover:shadow-md transition"
+                                >
+                                  Confirm
+                                </button>
+                              )}
+                              {order.status === 'confirmed' && (
+                                <button
                                   onClick={() => updateOrderStatus(order.id, 'processing')}
                                   className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-xs font-medium rounded-lg hover:shadow-md transition"
                                 >
@@ -333,10 +355,10 @@ function AdminOrdersContent() {
                               )}
                               {order.status === 'processing' && (
                                 <button
-                                  onClick={() => updateOrderStatus(order.id, 'delivered')}
-                                  className="px-3 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-medium rounded-lg hover:shadow-md transition"
+                                  onClick={() => updateOrderStatus(order.id, 'completed')}
+                                  className="px-3 py-1.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white text-xs font-medium rounded-lg hover:shadow-md transition"
                                 >
-                                  Deliver
+                                  Complete
                                 </button>
                               )}
                               <Link

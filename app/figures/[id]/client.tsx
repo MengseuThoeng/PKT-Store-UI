@@ -22,7 +22,6 @@ import {
   ChevronLeft,
   ChevronRight
 } from "lucide-react"
-import { featuredProducts } from "@/lib/data/figure-data"
 import type { Figure } from "@/lib/types/figure"
 import { useCart } from "@/lib/context/CartContext"
 import { useToast } from "@/lib/hooks/useToast"
@@ -40,10 +39,24 @@ export default function FigureDetailsClient({ params }: { params: { id: string }
   const { toasts, addToast, removeToast } = useToast()
 
   useEffect(() => {
-    const figureId = parseInt(params.id as string)
-    const foundFigure = featuredProducts.find(f => f.id === figureId)
-    setFigure(foundFigure || null)
-    setIsLoading(false)
+    const loadFigure = async () => {
+      try {
+        const response = await fetch('/api/products/figures')
+        const result = await response.json()
+        if (result.success) {
+          const foundFigure = result.data.find((f: Figure) => f.id === parseInt(params.id as string))
+          if (foundFigure) {
+            setFigure(foundFigure)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load figure:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    loadFigure()
   }, [params.id])
 
   const handleQuantityChange = (change: number) => {
@@ -171,12 +184,17 @@ export default function FigureDetailsClient({ params }: { params: { id: string }
               
               {/* Badges */}
               <div className="absolute top-4 left-4 flex flex-col gap-2">
-                {figure.isNew && (
+                {(!figure.stockCount || figure.stockCount === 0) && (
+                  <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                    OUT OF STOCK
+                  </div>
+                )}
+                {figure.isNew && figure.stockCount && figure.stockCount > 0 && (
                   <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white w-14 px-3 py-1 rounded-full text-sm font-bold shadow-lg">
                     NEW
                   </div>
                 )}
-                {figure.originalPrice && (
+                {figure.originalPrice && figure.stockCount && figure.stockCount > 0 && (
                   <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
                     -{Math.round(((figure.originalPrice - figure.price) / figure.originalPrice) * 100)}% OFF
                   </div>
@@ -277,13 +295,10 @@ export default function FigureDetailsClient({ params }: { params: { id: string }
 
               {/* Stock */}
               <div className="flex items-center gap-2">
-                {figure.inStock ? (
+                {figure.stockCount && figure.stockCount > 0 ? (
                   <>
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span className="text-green-600 font-semibold">In Stock</span>
-                    {figure.stockCount && (
-                      <span className="text-gray-500">({figure.stockCount} available)</span>
-                    )}
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-green-600 font-semibold">In Stock: {figure.stockCount} available</span>
                   </>
                 ) : (
                   <>
@@ -370,7 +385,7 @@ export default function FigureDetailsClient({ params }: { params: { id: string }
                   <button
                     onClick={() => handleQuantityChange(-1)}
                     className="p-3 hover:bg-gray-100 transition-colors disabled:opacity-50"
-                    disabled={quantity <= 1}
+                    disabled={quantity <= 1 || !figure.stockCount || figure.stockCount === 0}
                   >
                     <Minus className="w-4 h-4" />
                   </button>
@@ -378,7 +393,7 @@ export default function FigureDetailsClient({ params }: { params: { id: string }
                   <button
                     onClick={() => handleQuantityChange(1)}
                     className="p-3 hover:bg-gray-100 transition-colors disabled:opacity-50"
-                    disabled={quantity >= (figure.stockCount || 10)}
+                    disabled={quantity >= (figure.stockCount || 10) || !figure.stockCount || figure.stockCount === 0}
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -389,11 +404,11 @@ export default function FigureDetailsClient({ params }: { params: { id: string }
               <div className="space-y-3">
                 <button
                   onClick={handleAddToCart}
-                  className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-50"
-                  disabled={!figure.inStock}
+                  className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:transform-none disabled:from-gray-300 disabled:to-gray-300"
+                  disabled={!figure.stockCount || figure.stockCount === 0}
                 >
                   <ShoppingCart className="w-6 h-6" />
-                  Add to Cart - ${(figure.price * quantity).toFixed(2)}
+                  {!figure.stockCount || figure.stockCount === 0 ? 'Out of Stock' : `Add to Cart - $${(figure.price * quantity).toFixed(2)}`}
                 </button>
                 
                 <button

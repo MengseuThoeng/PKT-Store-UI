@@ -71,8 +71,8 @@ export class KHQRService {
       // Determine currency
       const currency = params.currency === 'KHR' ? CURRENCY.KHR : CURRENCY.USD
 
-      // Calculate expiration (15 minutes from now)
-      const expirationTimestamp = Date.now() + (15 * 60 * 1000)
+      // Calculate expiration (3 minutes from now)
+      const expirationTimestamp = Date.now() + (3 * 60 * 1000)
 
       // Generate truly unique bill number with timestamp + random
       const uniqueBillNumber = params.billNumber 

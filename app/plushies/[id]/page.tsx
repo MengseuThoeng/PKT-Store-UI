@@ -3,17 +3,51 @@ import { notFound } from "next/navigation"
 import { ArrowLeft, Share2, ShoppingCart, Heart, Star, Ruler, Package, User, Calendar, Weight, Shield, Truck, RotateCcw } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { featuredPlushies } from "@/lib/data/plushie-data"
 import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
+import { useCart } from "@/lib/context/CartContext"
+import { useToast } from "@/lib/hooks/useToast"
+import WishlistButton from "@/components/ui/WishlistButton"
+import type { Plushie } from "@/lib/types/plushie"
 
 export default function PlushieDetailPage() {
   const params = useParams()
+  const { addItem } = useCart()
+  const { toasts, addToast, removeToast } = useToast()
   const [quantity, setQuantity] = useState(1)
-  const [isInWishlist, setIsInWishlist] = useState(false)
   const [imageError, setImageError] = useState(false)
+  const [plushie, setPlushie] = useState<Plushie | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const plushie = featuredPlushies.find((p) => p.id === parseInt(params.id as string))
+  useEffect(() => {
+    const loadPlushie = async () => {
+      try {
+        const response = await fetch('/api/products/plushies')
+        const result = await response.json()
+        if (result.success) {
+          const foundPlushie = result.data.find((p: Plushie) => p.id === parseInt(params.id as string))
+          if (foundPlushie) {
+            setPlushie(foundPlushie)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load plushie:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    loadPlushie()
+  }, [params.id])
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-pink-500 border-t-transparent"></div>
+        <p className="mt-4 text-gray-600">Loading plushie details...</p>
+      </div>
+    </div>
+  }
 
   if (!plushie) {
     notFound()
@@ -22,12 +56,16 @@ export default function PlushieDetailPage() {
   console.log('Plushie image path:', plushie.image) // Debug log
 
   const handleAddToCart = () => {
-    console.log(`Added ${quantity} of ${plushie.name} to cart`)
-  }
-
-  const handleToggleWishlist = () => {
-    setIsInWishlist(!isInWishlist)
-    console.log(`${isInWishlist ? "Removed from" : "Added to"} wishlist: ${plushie.name}`)
+    addItem({
+      id: plushie.id,
+      name: plushie.name,
+      price: plushie.price,
+      image: plushie.image,
+      type: 'plushie',
+      maxStock: 10,
+      quantity: quantity
+    })
+    addToast(`Added ${quantity} ${plushie.name} to cart!`, 'success')
   }
 
   const handleShare = () => {
@@ -92,8 +130,15 @@ export default function PlushieDetailPage() {
                 )}
               </div>
               
+              {/* Out of Stock Badge */}
+              {(!plushie.stockCount || plushie.stockCount === 0) && (
+                <div className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg z-10">
+                  OUT OF STOCK
+                </div>
+              )}
+              
               {/* New Badge */}
-              {plushie.isNew && (
+              {plushie.isNew && plushie.stockCount && plushie.stockCount > 0 && (
                 <div className="absolute top-4 left-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
                   NEW ARRIVAL
                 </div>
@@ -150,6 +195,23 @@ export default function PlushieDetailPage() {
                 )}
               </div>
 
+              {/* Stock Status */}
+              <div className="mb-4">
+                {plushie.stockCount && plushie.stockCount > 0 ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium text-green-600">
+                      In Stock: {plushie.stockCount} available
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-red-600">Out of Stock</span>
+                  </div>
+                )}
+              </div>
+
               {/* Quantity and Actions */}
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
@@ -160,9 +222,10 @@ export default function PlushieDetailPage() {
                     id="quantity"
                     value={quantity}
                     onChange={(e) => setQuantity(parseInt(e.target.value))}
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    disabled={!plushie.stockCount || plushie.stockCount === 0}
+                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
-                    {[...Array(10)].map((_, i) => (
+                    {[...Array(Math.min(10, plushie.stockCount || 0))].map((_, i) => (
                       <option key={i + 1} value={i + 1}>
                         {i + 1}
                       </option>
@@ -173,21 +236,18 @@ export default function PlushieDetailPage() {
                 <div className="flex gap-3">
                   <button
                     onClick={handleAddToCart}
-                    className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
+                    disabled={!plushie.stockCount || plushie.stockCount === 0}
+                    className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
                   >
                     <ShoppingCart className="w-5 h-5" />
                     Add to Cart
                   </button>
-                  <button
-                    onClick={handleToggleWishlist}
-                    className={`p-3 rounded-xl border-2 transition-colors ${
-                      isInWishlist
-                        ? "bg-red-50 border-red-200 text-red-600"
-                        : "bg-white border-gray-200 text-gray-600 hover:border-red-200 hover:text-red-600"
-                    }`}
-                  >
-                    <Heart className={`w-5 h-5 ${isInWishlist ? "fill-current" : ""}`} />
-                  </button>
+                  <WishlistButton 
+                    productId={plushie.id}
+                    productType="plushie"
+                    size="lg"
+                    className="p-3"
+                  />
                 </div>
               </div>
             </div>
@@ -281,6 +341,22 @@ export default function PlushieDetailPage() {
             <p className="text-sm text-gray-600">30-day hassle-free returns</p>
           </div>
         </div>
+      </div>
+
+      {/* Toast Notifications */}
+      <div className="fixed top-4 right-4 z-50 space-y-2">
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className={`px-6 py-3 rounded-lg shadow-lg text-white font-medium animate-slide-in-right ${
+              toast.type === 'success' ? 'bg-green-500' :
+              toast.type === 'error' ? 'bg-red-500' :
+              'bg-blue-500'
+            }`}
+          >
+            {toast.message}
+          </div>
+        ))}
       </div>
     </div>
   )

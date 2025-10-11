@@ -3,17 +3,47 @@ import { notFound } from "next/navigation"
 import { ArrowLeft, Share2, ShoppingCart, Heart, Star, BookOpen, Calendar, User, Globe, Award, Package, Truck, Shield, RotateCcw } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
-import { featuredManga } from "@/lib/data/manga-data"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams } from "next/navigation"
+import type { Manga } from "@/lib/types/manga"
 
 export default function MangaDetailPage() {
   const params = useParams()
   const [quantity, setQuantity] = useState(1)
   const [isInWishlist, setIsInWishlist] = useState(false)
   const [imageError, setImageError] = useState(false)
+  const [manga, setManga] = useState<Manga | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const manga = featuredManga.find((m) => m.id === parseInt(params.id as string))
+  useEffect(() => {
+    const loadManga = async () => {
+      try {
+        const response = await fetch('/api/products/manga')
+        const result = await response.json()
+        if (result.success) {
+          const foundManga = result.data.find((m: Manga) => m.id === parseInt(params.id as string))
+          if (foundManga) {
+            setManga(foundManga)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load manga:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    loadManga()
+  }, [params.id])
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-pink-500 border-t-transparent"></div>
+        <p className="mt-4 text-gray-600">Loading manga details...</p>
+      </div>
+    </div>
+  }
 
   if (!manga) {
     notFound()
@@ -118,10 +148,19 @@ export default function MangaDetailPage() {
                 )}
               </div>
               
+              {/* Out of Stock Badge */}
+              {(!manga.stockCount || manga.stockCount === 0) && (
+                <div className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg z-10">
+                  OUT OF STOCK
+                </div>
+              )}
+              
               {/* Status Badge */}
-              <div className={`absolute top-4 left-4 ${getStatusColor()} text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg`}>
-                {getStatusText()}
-              </div>
+              {manga.stockCount && manga.stockCount > 0 && (
+                <div className={`absolute top-4 left-4 ${getStatusColor()} text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg`}>
+                  {getStatusText()}
+                </div>
+              )}
               
               {/* Popular Badge */}
               {manga.isPopular && (
@@ -178,6 +217,23 @@ export default function MangaDetailPage() {
                 )}
               </div>
 
+              {/* Stock Status */}
+              <div className="mb-4">
+                {manga.stockCount && manga.stockCount > 0 ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-medium text-green-600">
+                      In Stock: {manga.stockCount} available
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span className="text-sm font-medium text-red-600">Out of Stock</span>
+                  </div>
+                )}
+              </div>
+
               {/* Quantity and Actions */}
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
@@ -188,9 +244,10 @@ export default function MangaDetailPage() {
                     id="quantity"
                     value={quantity}
                     onChange={(e) => setQuantity(parseInt(e.target.value))}
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    disabled={!manga.stockCount || manga.stockCount === 0}
+                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                   >
-                    {[...Array(10)].map((_, i) => (
+                    {[...Array(Math.min(10, manga.stockCount || 0))].map((_, i) => (
                       <option key={i + 1} value={i + 1}>
                         {i + 1}
                       </option>
@@ -201,7 +258,8 @@ export default function MangaDetailPage() {
                 <div className="flex gap-3">
                   <button
                     onClick={handleAddToCart}
-                    className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2"
+                    disabled={!manga.stockCount || manga.stockCount === 0}
+                    className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
                   >
                     <ShoppingCart className="w-5 h-5" />
                     Add to Cart

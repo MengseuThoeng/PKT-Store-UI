@@ -1,12 +1,6 @@
 import { MetadataRoute } from 'next'
-import { featuredProducts } from '@/lib/data/figure-data'
-import { featuredManga } from '@/lib/data/manga-data'
-import { featuredPlushies } from '@/lib/data/plushie-data'
-import type { Figure } from '@/lib/types/figure'
-import type { Manga } from '@/lib/types/manga'
-import type { Plushie } from '@/lib/types/plushie'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://pkt-store.vercel.app'
 
   // Static pages
@@ -27,34 +21,53 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: page === '' ? 1 : 0.8,
   }))
 
-  // Dynamic figure pages
-  const figureUrls = featuredProducts.map((figure: Figure) => ({
-    url: `${baseUrl}/figures/${figure.id}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }))
+  try {
+    // Fetch products from database
+    const [figuresRes, mangaRes, plushiesRes] = await Promise.all([
+      fetch(`${baseUrl}/api/products/figures`, { next: { revalidate: 3600 } }),
+      fetch(`${baseUrl}/api/products/manga`, { next: { revalidate: 3600 } }),
+      fetch(`${baseUrl}/api/products/plushies`, { next: { revalidate: 3600 } }),
+    ])
 
-  // Dynamic manga pages
-  const mangaUrls = featuredManga.map((manga: Manga) => ({
-    url: `${baseUrl}/manga/${manga.id}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }))
+    const [figuresData, mangaData, plushiesData] = await Promise.all([
+      figuresRes.json(),
+      mangaRes.json(),
+      plushiesRes.json(),
+    ])
 
-  // Dynamic plushie pages
-  const plushieUrls = featuredPlushies.map((plushie: Plushie) => ({
-    url: `${baseUrl}/plushies/${plushie.id}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }))
+    // Dynamic figure pages
+    const figureUrls = (figuresData.data || []).map((figure: any) => ({
+      url: `${baseUrl}/figures/${figure.id}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }))
 
-  return [
-    ...staticUrls,
-    ...figureUrls,
-    ...mangaUrls,
-    ...plushieUrls,
-  ]
+    // Dynamic manga pages
+    const mangaUrls = (mangaData.data || []).map((manga: any) => ({
+      url: `${baseUrl}/manga/${manga.id}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }))
+
+    // Dynamic plushie pages
+    const plushieUrls = (plushiesData.data || []).map((plushie: any) => ({
+      url: `${baseUrl}/plushies/${plushie.id}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }))
+
+    return [
+      ...staticUrls,
+      ...figureUrls,
+      ...mangaUrls,
+      ...plushieUrls,
+    ]
+  } catch (error) {
+    console.error('Error generating sitemap:', error)
+    // Return just static pages if API fails
+    return staticUrls
+  }
 }

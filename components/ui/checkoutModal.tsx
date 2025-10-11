@@ -142,8 +142,8 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit }: CheckoutMod
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl max-w-2xl w-full my-auto max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
         {/* Header */}
         <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white p-6 relative">
           <button
@@ -181,7 +181,7 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit }: CheckoutMod
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[60vh]">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6" style={{ minHeight: 0 }}>
           {/* Step 1: Customer Information */}
           {step === 1 && (
             <div className="space-y-6">
@@ -353,7 +353,8 @@ export default function CheckoutModal({ isOpen, onClose, onSubmit }: CheckoutMod
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 p-6 bg-gray-50">
+        <div className="shrink-0 border-t border-gray-200 p-4 md:p-6 bg-gray-50"
+          style={{ boxShadow: '0 -4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
           <div className="flex justify-between">
             {step > 1 && (
               <button

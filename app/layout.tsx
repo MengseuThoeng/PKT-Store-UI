@@ -3,6 +3,7 @@ import "./globals.css";
 import ConditionalLayout from "@/components/ui/ConditionalLayout";
 import { CartProvider } from "@/lib/context/CartContext";
 import { AuthProvider } from "@/lib/context/AuthContext";
+import { WishlistProvider } from "@/lib/context/WishlistContext";
 
 export const metadata: Metadata = {
   title: {
@@ -96,9 +97,11 @@ export default function RootLayout({
       <body className="antialiased">
         <AuthProvider>
           <CartProvider>
-            <ConditionalLayout>
-              {children}
-            </ConditionalLayout>
+            <WishlistProvider>
+              <ConditionalLayout>
+                {children}
+              </ConditionalLayout>
+            </WishlistProvider>
           </CartProvider>
         </AuthProvider>
       </body>

@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useCart } from "@/lib/context/CartContext";
 import { useAuth } from "@/lib/context/AuthContext";
+import { useWishlist } from "@/lib/context/WishlistContext";
 
 const navItems = [
   {
@@ -43,10 +44,10 @@ const navItems = [
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [wishlistCount, setWishlistCount] = useState(7);
   const [searchQuery, setSearchQuery] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { totalItems } = useCart();
+  const { wishlistCount } = useWishlist();
   const { user, isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
@@ -124,14 +125,11 @@ export default function Navbar() {
                     />
                   </Link>
                 </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-sm">
-                  <span className="text-xs">✨</span>
-                </div>
               </div>
             </div>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:block">
+            <div className="hidden lg:block ml-8">
               <div className="flex items-center space-x-1">
                 {navItems.map((item, index) => (
                   <div key={item.name} className="relative group">
@@ -187,18 +185,20 @@ export default function Navbar() {
             {/* Right side icons */}
             <div className="flex items-center space-x-2">
               {/* Wishlist */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative text-gray-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-300 group"
-              >
-                <Heart className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-                    {wishlistCount}
-                  </span>
-                )}
-              </Button>
+              <Link href="/wishlist">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="relative text-gray-600 hover:text-pink-600 hover:bg-pink-50 transition-all duration-300 group"
+                >
+                  <Heart className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
 
               {/* Cart */}
               <Link href="/cart">
