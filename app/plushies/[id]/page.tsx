@@ -1,363 +1,49 @@
-"use client"
-import { notFound } from "next/navigation"
-import { ArrowLeft, Share2, ShoppingCart, Heart, Star, Ruler, Package, User, Calendar, Weight, Shield, Truck, RotateCcw } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
-import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
-import { useCart } from "@/lib/context/CartContext"
-import { useToast } from "@/lib/hooks/useToast"
-import WishlistButton from "@/components/ui/WishlistButton"
-import type { Plushie } from "@/lib/types/plushie"
+import { Metadata } from 'next'
+import PlushieDetailClient from './client'
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const resolvedParams = await params
+  const plushieId = parseInt(resolvedParams.id)
+  
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || 'https://pkt-store.vercel.app'
+    const response = await fetch(`${baseUrl}/api/products/plushies`, { next: { revalidate: 3600 } })
+    const result = await response.json()
+    const plushie = result.success ? result.data.find((p: any) => p.id === plushieId) : null
+
+    if (!plushie) {
+      return { title: 'Plushie Not Found | PKT Store', description: 'The requested plushie could not be found.' }
+    }
+
+    const imageUrl = plushie.image_url?.startsWith('http') ? plushie.image_url : `${baseUrl}${plushie.image_url || plushie.image || '/images/pkt.jpg'}`
+    const productUrl = `${baseUrl}/plushies/${plushieId}`
+    const price = plushie.price?.toFixed(2) || '0.00'
+
+    return {
+      title: `${plushie.name} - Adorable Plushie | PKT Store`,
+      description: `${plushie.description || `Buy ${plushie.name} - Premium plushie from ${plushie.series || 'anime'}`} Price: $${price}.`,
+      metadataBase: new URL(baseUrl),
+      alternates: { canonical: productUrl },
+      openGraph: {
+        type: 'website',
+        url: productUrl,
+        title: `${plushie.name} - Adorable Plushie`,
+        description: `Premium ${plushie.name} plushie`,
+        siteName: 'PKT Store',
+        images: [{ url: imageUrl, width: 1200, height: 630, alt: `${plushie.name} Plushie` }],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${plushie.name} - Plushie`,
+        description: `Premium ${plushie.name} plushie. $${price}.`,
+        images: [imageUrl],
+      },
+    }
+  } catch (error) {
+    return { title: 'Plushie | PKT Store', description: 'Premium anime plushies' }
+  }
+}
 
 export default function PlushieDetailPage() {
-  const params = useParams()
-  const { addItem } = useCart()
-  const { toasts, addToast, removeToast } = useToast()
-  const [quantity, setQuantity] = useState(1)
-  const [imageError, setImageError] = useState(false)
-  const [plushie, setPlushie] = useState<Plushie | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const loadPlushie = async () => {
-      try {
-        const response = await fetch('/api/products/plushies')
-        const result = await response.json()
-        if (result.success) {
-          const foundPlushie = result.data.find((p: Plushie) => p.id === parseInt(params.id as string))
-          if (foundPlushie) {
-            setPlushie(foundPlushie)
-          }
-        }
-      } catch (error) {
-        console.error('Failed to load plushie:', error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    
-    loadPlushie()
-  }, [params.id])
-
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-pink-500 border-t-transparent"></div>
-        <p className="mt-4 text-gray-600">Loading plushie details...</p>
-      </div>
-    </div>
-  }
-
-  if (!plushie) {
-    notFound()
-  }
-
-  console.log('Plushie image path:', plushie.image) // Debug log
-
-  const handleAddToCart = () => {
-    addItem({
-      id: plushie.id,
-      name: plushie.name,
-      price: plushie.price,
-      image: plushie.image,
-      type: 'plushie',
-      maxStock: 10,
-      quantity: quantity
-    })
-    addToast(`Added ${quantity} ${plushie.name} to cart!`, 'success')
-  }
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: plushie.name,
-        text: `Check out this adorable plushie: ${plushie.character} from ${plushie.series}`,
-        url: window.location.href,
-      })
-    }
-  }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50">
-      <div className="container mx-auto px-4 py-8">
-        {/* Navigation */}
-        <div className="flex items-center justify-between mb-8">
-          <Link 
-            href="/plushies" 
-            className="group flex items-center gap-3 bg-white hover:bg-pink-50 border border-pink-200 hover:border-pink-300 rounded-xl px-6 py-3 transition-all duration-300 shadow-md hover:shadow-lg"
-          >
-            <div className="p-2 bg-pink-100 group-hover:bg-pink-200 rounded-lg transition-colors">
-              <ArrowLeft className="w-4 h-4 text-pink-600" />
-            </div>
-            <span className="font-medium text-gray-700 group-hover:text-pink-700">Back to Plushies</span>
-          </Link>
-          <button
-            onClick={handleShare}
-            className="group flex items-center gap-3 bg-white hover:bg-pink-50 border border-pink-200 hover:border-pink-300 rounded-xl px-6 py-3 transition-all duration-300 shadow-md hover:shadow-lg"
-          >
-            <div className="p-2 bg-pink-100 group-hover:bg-pink-200 rounded-lg transition-colors">
-              <Share2 className="w-4 h-4 text-pink-600" />
-            </div>
-            <span className="font-medium text-gray-700 group-hover:text-pink-700">Share</span>
-          </button>
-        </div>
-
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Image Section */}
-          <div className="flex justify-center">
-            <div className="relative w-full max-w-[500px]">
-              <div className="aspect-[2/3] relative rounded-2xl overflow-hidden shadow-2xl bg-white">
-                {!imageError ? (
-                  <Image
-                    src={plushie.image}
-                    alt={plushie.name}
-                    fill
-                    className="object-cover"
-                    priority
-                    sizes="(max-width: 768px) 100vw, 500px"
-                    onError={() => setImageError(true)}
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                    <div className="text-center">
-                      <Package className="w-16 h-16 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-500">Image not available</p>
-                      <p className="text-xs text-gray-400 mt-1">Path: {plushie.image}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Out of Stock Badge */}
-              {(!plushie.stockCount || plushie.stockCount === 0) && (
-                <div className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg z-10">
-                  OUT OF STOCK
-                </div>
-              )}
-              
-              {/* New Badge */}
-              {plushie.isNew && plushie.stockCount && plushie.stockCount > 0 && (
-                <div className="absolute top-4 left-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
-                  NEW ARRIVAL
-                </div>
-              )}
-              
-              {/* Size Badge */}
-              <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium text-gray-700 flex items-center gap-1 shadow-lg">
-                <Ruler className="w-4 h-4" />
-                {plushie.size}
-              </div>
-            </div>
-          </div>
-
-          {/* Details Section */}
-          <div className="space-y-6">
-            {/* Header */}
-            <div>
-              <p className="text-lg text-pink-600 font-semibold mb-1">{plushie.series}</p>
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">{plushie.character}</h1>
-              <p className="text-lg text-gray-600">{plushie.name}</p>
-            </div>
-
-            {/* Rating */}
-            {plushie.rating && (
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-5 h-5 ${
-                        i < Math.floor(plushie.rating!)
-                          ? "text-yellow-400 fill-current"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="text-lg font-semibold text-gray-700">{plushie.rating}</span>
-                <span className="text-gray-500">(89 reviews)</span>
-              </div>
-            )}
-
-            {/* Price */}
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <div className="flex items-baseline gap-3 mb-4">
-                <span className="text-3xl font-bold text-pink-600">${plushie.price.toFixed(2)}</span>
-                {plushie.originalPrice && (
-                  <>
-                    <span className="text-xl text-gray-400 line-through">${plushie.originalPrice.toFixed(2)}</span>
-                    <span className="bg-red-100 text-red-600 px-2 py-1 rounded-full text-sm font-semibold">
-                      -{Math.round(((plushie.originalPrice - plushie.price) / plushie.originalPrice) * 100)}% OFF
-                    </span>
-                  </>
-                )}
-              </div>
-
-              {/* Stock Status */}
-              <div className="mb-4">
-                {plushie.stockCount && plushie.stockCount > 0 ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-medium text-green-600">
-                      In Stock: {plushie.stockCount} available
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                    <span className="text-sm font-medium text-red-600">Out of Stock</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Quantity and Actions */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <label htmlFor="quantity" className="text-sm font-medium text-gray-700">
-                    Quantity:
-                  </label>
-                  <select
-                    id="quantity"
-                    value={quantity}
-                    onChange={(e) => setQuantity(parseInt(e.target.value))}
-                    disabled={!plushie.stockCount || plushie.stockCount === 0}
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  >
-                    {[...Array(Math.min(10, plushie.stockCount || 0))].map((_, i) => (
-                      <option key={i + 1} value={i + 1}>
-                        {i + 1}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={!plushie.stockCount || plushie.stockCount === 0}
-                    className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
-                  >
-                    <ShoppingCart className="w-5 h-5" />
-                    Add to Cart
-                  </button>
-                  <WishlistButton 
-                    productId={plushie.id}
-                    productType="plushie"
-                    size="lg"
-                    className="p-3"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Description */}
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-gray-800 mb-3">Description</h3>
-              <p className="text-gray-600 leading-relaxed">
-                {plushie.description || `This adorable ${plushie.character} plushie from ${plushie.series} is perfect for fans and collectors alike. Made with premium materials and attention to detail, this ${plushie.size.toLowerCase()} plushie brings your favorite character to life in the softest, most huggable way possible.`}
-              </p>
-            </div>
-
-            {/* Details */}
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Product Details</h3>
-              <div className="grid grid-cols-1 gap-3">
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-600 flex items-center gap-2">
-                    <Ruler className="w-4 h-4" />
-                    Size
-                  </span>
-                  <span className="font-semibold text-gray-800">{plushie.size}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-600 flex items-center gap-2">
-                    <Package className="w-4 h-4" />
-                    Material
-                  </span>
-                  <span className="font-semibold text-gray-800">{plushie.material || "Premium Plush"}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-600">Series</span>
-                  <span className="font-semibold text-gray-800">{plushie.series}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-600">Character</span>
-                  <span className="font-semibold text-gray-800">{plushie.character}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-600">Manufacturer</span>
-                  <span className="font-semibold text-gray-800">{plushie.manufacturer || "PKT Store"}</span>
-                </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-600">Age Range</span>
-                  <span className="font-semibold text-gray-800">{plushie.ageRange || "3+ years"}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Features */}
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Features</h3>
-              <div className="space-y-2">
-                {(plushie.features || ["Super soft and cuddly", "High-quality stitching", "Collectible design", "Perfect for gifting"]).map((feature, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
-                    <span className="text-gray-700">{feature}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Care Instructions */}
-            <div className="bg-white rounded-xl p-6 shadow-lg">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Care Instructions</h3>
-              <div className="space-y-2 text-gray-600">
-                <p>• {plushie.careInstructions || "Surface wash only with mild soap"}</p>
-                <p>• Air dry completely before use</p>
-                <p>• Do not machine wash or tumble dry</p>
-                <p>• Keep away from direct sunlight for extended periods</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Additional Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-          <div className="bg-white rounded-xl p-6 shadow-lg text-center">
-            <Truck className="w-8 h-8 text-pink-600 mx-auto mb-3" />
-            <h4 className="font-semibold text-gray-800 mb-2">Fast Shipping</h4>
-            <p className="text-sm text-gray-600">Free shipping on orders over $35</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-lg text-center">
-            <Shield className="w-8 h-8 text-pink-600 mx-auto mb-3" />
-            <h4 className="font-semibold text-gray-800 mb-2">Authentic Products</h4>
-            <p className="text-sm text-gray-600">100% genuine licensed merchandise</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-lg text-center">
-            <RotateCcw className="w-8 h-8 text-pink-600 mx-auto mb-3" />
-            <h4 className="font-semibold text-gray-800 mb-2">Easy Returns</h4>
-            <p className="text-sm text-gray-600">30-day hassle-free returns</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Toast Notifications */}
-      <div className="fixed top-4 right-4 z-50 space-y-2">
-        {toasts.map((toast) => (
-          <div
-            key={toast.id}
-            className={`px-6 py-3 rounded-lg shadow-lg text-white font-medium animate-slide-in-right ${
-              toast.type === 'success' ? 'bg-green-500' :
-              toast.type === 'error' ? 'bg-red-500' :
-              'bg-blue-500'
-            }`}
-          >
-            {toast.message}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+  return <PlushieDetailClient />
 }
