@@ -35,6 +35,7 @@ export class BakongVerifyService {
       console.log('✅ BAKONG_ACCESS_TOKEN is set (length:', this.accessToken.length, ')')
       console.log('🔍 Token before trim length:', token.length)
       console.log('🔍 Token after trim length:', this.accessToken.length)
+      console.log('🔑 FULL ACCESS TOKEN:', this.accessToken) // 🔥 Debug: Output full token
       if (token !== this.accessToken) {
         console.warn('⚠️ Token had whitespace/newlines! Trimmed.')
       }
