@@ -37,6 +37,7 @@ export class BakongVerifyService {
   async checkTransactionByMD5(md5: string): Promise<BakongVerificationResult> {
     try {
       if (!this.accessToken) {
+        console.error('❌ BAKONG_ACCESS_TOKEN is not configured!')
         return {
           success: false,
           status: 'pending',
@@ -45,6 +46,8 @@ export class BakongVerifyService {
       }
 
       console.log('📡 Checking Bakong transaction with MD5:', md5)
+      console.log('🔑 Access Token (first 20 chars):', this.accessToken.substring(0, 20) + '...')
+      console.log('🌐 API URL:', this.apiUrl)
 
       const response = await fetch(this.apiUrl, {
         method: 'POST',
@@ -55,13 +58,16 @@ export class BakongVerifyService {
         body: JSON.stringify({ md5 }),
       })
 
+      console.log('📡 Bakong API Response Status:', response.status)
+      
       const data = await response.json()
 
-      console.log('📦 Bakong Response:', {
+      console.log('📦 Bakong Response Data:', {
         responseCode: data.responseCode,
         responseMessage: data.responseMessage,
         errorCode: data.errorCode,
         hasData: !!data.data,
+        fullResponse: JSON.stringify(data, null, 2)
       })
 
       // responseCode: 0 = success, 1 = failed/not found
@@ -90,6 +96,7 @@ export class BakongVerifyService {
       if (data.errorCode === 2) {
         console.log('⚠️ Individual KHQR accounts cannot be auto-verified via API')
         console.log('💡 This is normal for personal accounts - requires manual verification')
+        console.log('📱 Error Code 2 = Static QR (Individual Account)')
         return {
           success: false,
           status: 'pending',
@@ -101,6 +108,7 @@ export class BakongVerifyService {
       // Transaction not found or failed
       if (data.errorCode === 1) {
         console.log('⏳ Transaction not found yet - still pending')
+        console.log('📱 Error Code 1 = Transaction not found')
         return {
           success: false,
           status: 'pending',
@@ -110,6 +118,7 @@ export class BakongVerifyService {
 
       if (data.errorCode === 3) {
         console.log('❌ Transaction failed')
+        console.log('📱 Error Code 3 = Transaction failed')
         return {
           success: false,
           status: 'failed',
@@ -117,10 +126,11 @@ export class BakongVerifyService {
         }
       }
 
+      console.log('⚠️ Unexpected Bakong response:', data)
       return {
         success: false,
         status: 'pending',
-        message: data.responseMessage,
+        message: data.responseMessage || 'Unknown status',
       }
     } catch (error) {
       console.error('❌ Bakong verification error:', error)

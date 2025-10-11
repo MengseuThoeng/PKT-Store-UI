@@ -219,7 +219,19 @@ export async function GET(request: NextRequest) {
     console.log('📋 Verification result:', {
       success: verification.success,
       status: verification.status,
+      message: verification.message,
+      error: verification.error,
+      hasData: !!verification.data,
     })
+
+    // 🔥 Log detailed verification for production debugging
+    if (!verification.success) {
+      console.log('⚠️ Bakong verification not successful:', {
+        status: verification.status,
+        message: verification.message,
+        error: verification.error,
+      })
+    }
 
     // Update database if payment is completed
     if (verification.success && verification.status === 'completed') {

@@ -149,11 +149,15 @@ export default function KHQRPaymentPage() {
         return
       }
 
+      console.log('🔍 Checking payment status for transaction:', txnId)
       const response = await fetch(`/api/payment/khqr?transactionId=${txnId}`)
+      
+      console.log('📡 Response status:', response.status)
       
       // If transaction not found (404), stop checking
       if (response.status === 404) {
-        // console.warn('⚠️ Transaction not found, stopping status checks')
+        console.warn('⚠️ Transaction not found, stopping status checks')
+        alert('❌ DEBUG: Transaction not found (404). Transaction ID: ' + txnId)
         if (statusCheckInterval.current) {
           clearInterval(statusCheckInterval.current)
           statusCheckInterval.current = null
@@ -162,27 +166,39 @@ export default function KHQRPaymentPage() {
       }
       
       const data = await response.json()
+      
+      // 🔥 DEBUG ALERT - Show what we got from API
+      console.log('📦 Payment check response:', data)
+      alert(`🔍 DEBUG - Payment Status Check:\n\n` +
+        `Transaction ID: ${txnId}\n` +
+        `Success: ${data.success}\n` +
+        `Status: ${data.status}\n` +
+        `Message: ${data.message || 'N/A'}\n` +
+        `Error: ${data.error || 'N/A'}\n` +
+        `Has Bakong Data: ${!!data.bakongData}\n\n` +
+        `Full Response: ${JSON.stringify(data, null, 2)}`)
 
       // Check if still mounted before updating state
       if (!isMounted.current) {
-        // console.log('⚠️ Component unmounted during request, ignoring response')
+        console.log('⚠️ Component unmounted during request, ignoring response')
         return
       }
 
       if (data.success && data.status === 'completed') {
-        // console.log('✅ Payment confirmed! Order created automatically on server.')
+        console.log('✅ Payment confirmed! Order created automatically on server.')
+        alert('✅ SUCCESS! Payment confirmed by Bakong API. Redirecting to orders...')
         setPaymentStatus('success')
         
         // Clear interval IMMEDIATELY
         if (statusCheckInterval.current) {
           clearInterval(statusCheckInterval.current)
           statusCheckInterval.current = null
-          // console.log('🛑 Status check interval stopped')
+          console.log('🛑 Status check interval stopped')
         }
 
         // Order is already created automatically by the payment verification API
         // No need to call /api/orders/create anymore!
-        // console.log('📦 Order was auto-created by payment verification')
+        console.log('📦 Order was auto-created by payment verification')
 
         // Clear cart
         clearCart()
@@ -192,18 +208,24 @@ export default function KHQRPaymentPage() {
           router.push('/orders?payment=success')
         }, 1000)
       } else if (data.status === 'failed') {
-        // console.log('❌ Payment failed! Stopping checks...')
+        console.log('❌ Payment failed! Stopping checks...')
+        alert('❌ Payment verification FAILED! Reason: ' + (data.error || data.message || 'Unknown'))
         setPaymentStatus('failed')
         setError('Payment failed. Please try again.')
         
         if (statusCheckInterval.current) {
           clearInterval(statusCheckInterval.current)
           statusCheckInterval.current = null
-          // console.log('🛑 Status check interval stopped')
+          console.log('🛑 Status check interval stopped')
         }
+      } else {
+        // Still pending
+        console.log('⏳ Payment still pending...')
+        alert(`⏳ Still PENDING...\nStatus: ${data.status}\nMessage: ${data.message || 'Waiting for payment'}`)
       }
     } catch (err) {
       console.error('❌ Status Check Error:', err)
+      alert('❌ ERROR checking payment status:\n' + (err instanceof Error ? err.message : String(err)))
       // Don't stop interval on network errors, keep trying
     }
   }
