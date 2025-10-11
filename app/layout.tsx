@@ -26,23 +26,39 @@ export const metadata: Metadata = {
   authors: [{ name: 'PKT Store' }],
   creator: 'PKT Store',
   publisher: 'PKT Store',
-  metadataBase: new URL('https://pkt-store.vercel.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://pkt-store.vercel.app'),
   alternates: {
     canonical: '/',
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/images/pkt.jpg', sizes: '192x192', type: 'image/jpeg' },
+    ],
+    apple: [
+      { url: '/images/pkt.jpg', sizes: '180x180', type: 'image/jpeg' },
+    ],
+    shortcut: ['/favicon.ico'],
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://pkt-store.vercel.app',
+    url: process.env.NEXT_PUBLIC_APP_URL || 'https://pkt-store.vercel.app',
     title: 'PKT Store - Premium Anime Figures, Manga & Plushies',
     description: 'Discover premium anime figures, manga collections, and plushies at PKT Store Cambodia. Your ultimate destination for authentic anime merchandise.',
     siteName: 'PKT Store',
     images: [
       {
-        url: '/images/pkt-store-og.jpg',
+        url: '/images/pngkt.png',
         width: 1200,
         height: 630,
         alt: 'PKT Store - Premium Anime Merchandise',
+      },
+      {
+        url: '/images/pkt.jpg',
+        width: 800,
+        height: 600,
+        alt: 'PKT Store Logo',
       },
     ],
   },
@@ -50,7 +66,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'PKT Store - Premium Anime Figures, Manga & Plushies',
     description: 'Discover premium anime figures, manga collections, and plushies at PKT Store Cambodia.',
-    images: ['/images/pkt-store-twitter.jpg'],
+    images: ['/images/pngkt.png'],
     creator: '@PKTStore',
   },
   robots: {
@@ -67,6 +83,7 @@ export const metadata: Metadata = {
   verification: {
     google: 'your-google-verification-code',
   },
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({
