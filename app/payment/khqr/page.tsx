@@ -171,11 +171,21 @@ export default function KHQRPaymentPage() {
       console.log('📦 Payment check response:', data)
       alert(`🔍 DEBUG - Payment Status Check:\n\n` +
         `Transaction ID: ${txnId}\n` +
+        `MD5 Hash: ${data.transaction?.md5 || data.md5 || 'NOT FOUND'}\n` +
         `Success: ${data.success}\n` +
         `Status: ${data.status}\n` +
         `Message: ${data.message || 'N/A'}\n` +
         `Error: ${data.error || 'N/A'}\n` +
+        `Bakong Error: ${data.bakongError || 'N/A'}\n` +
+        `Bakong Message: ${data.bakongMessage || 'N/A'}\n` +
         `Has Bakong Data: ${!!data.bakongData}\n\n` +
+        `🔍 EXPLANATION:\n` +
+        (data.bakongError === 'static_qr_not_supported' 
+          ? '⚠️ Individual KHQR account detected!\nBakong API cannot auto-verify personal accounts.\nOnly merchant accounts support auto-verification.\n\n' 
+          : '') +
+        (data.message?.includes('not found')
+          ? '⏳ Payment not detected by Bakong yet.\nEither you haven\'t paid, or Bakong is slow.\n\n'
+          : '') +
         `Full Response: ${JSON.stringify(data, null, 2)}`)
 
       // Check if still mounted before updating state

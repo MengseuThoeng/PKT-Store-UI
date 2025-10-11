@@ -200,6 +200,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: true,
         status: transaction.status,
+        md5: 'NOT_FOUND', // 🔥 Debug info
         transaction: {
           id: transaction.id,
           amount: transaction.amount,
@@ -436,6 +437,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       status: 'pending',
+      md5: md5, // 🔥 Include MD5 for debugging
       transaction: {
         id: transaction.id,
         amount: transaction.amount,
@@ -445,6 +447,8 @@ export async function GET(request: NextRequest) {
         updatedAt: transaction.updated_at,
       },
       message: verification.message,
+      bakongError: verification.error, // 🔥 Include Bakong error code
+      bakongMessage: verification.message, // 🔥 Include Bakong message
     })
   } catch (error) {
     console.error('❌ Status Check Error:', error)
