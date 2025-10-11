@@ -35,7 +35,7 @@ export class BakongVerifyService {
       console.log('✅ BAKONG_ACCESS_TOKEN is set (length:', this.accessToken.length, ')')
       console.log('🔍 Token before trim length:', token.length)
       console.log('🔍 Token after trim length:', this.accessToken.length)
-      console.log('🔑 FULL ACCESS TOKEN:', this.accessToken) // 🔥 Debug: Output full token
+      // console.log('🔑 FULL ACCESS TOKEN:', this.accessToken) // 🔥 Debug: Output full token
       if (token !== this.accessToken) {
         console.warn('⚠️ Token had whitespace/newlines! Trimmed.')
       }
@@ -76,6 +76,11 @@ export class BakongVerifyService {
       console.log('📡 Bakong API Response Status:', response.status)
       console.log('📡 Bakong API Response Headers:', Object.fromEntries(response.headers.entries()))
       
+      // 🔥 Log response status for debugging
+      if (!response.ok) {
+        console.error('❌ Bakong API returned non-OK status:', response.status, response.statusText)
+      }
+      
       // Check if response is HTML (error page)
       const contentType = response.headers.get('content-type')
       console.log('📄 Content-Type:', contentType)
@@ -83,13 +88,16 @@ export class BakongVerifyService {
       if (contentType && contentType.includes('text/html')) {
         console.error('❌ Bakong returned HTML instead of JSON!')
         const htmlText = await response.text()
-        console.error('HTML Response (first 1000 chars):', htmlText.substring(0, 1000))
-        console.error('HTML Response (last 500 chars):', htmlText.substring(Math.max(0, htmlText.length - 500)))
+        console.error('HTML Response (full text):', htmlText)
+        console.error('This usually means:')
+        console.error('  1. IP address is blocked/not whitelisted')
+        console.error('  2. WAF/Firewall blocking cloud hosting IPs')
+        console.error('  3. Geographic restrictions')
         return {
           success: false,
           status: 'pending',
           error: 'bakong_api_error',
-          message: `Bakong API returned HTML error. Status: ${response.status}. This usually means invalid access token or API configuration issue.`,
+          message: `Bakong API returned HTML error (Status ${response.status}). Possible IP blocking. Check if Vercel IPs are whitelisted with Bakong.`,
         }
       }
       
