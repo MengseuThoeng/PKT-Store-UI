@@ -171,7 +171,7 @@ export default function KHQRPaymentPage() {
       console.log('📦 Payment check response:', data)
       alert(`🔍 DEBUG - Payment Status Check:\n\n` +
         `Transaction ID: ${txnId}\n` +
-        `MD5 Hash: ${data.transaction?.md5 || data.md5 || 'NOT FOUND'}\n` +
+        `MD5 Hash: ${data.md5 || 'NOT FOUND IN RESPONSE'}\n` +
         `Success: ${data.success}\n` +
         `Status: ${data.status}\n` +
         `Message: ${data.message || 'N/A'}\n` +
