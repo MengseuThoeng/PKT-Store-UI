@@ -64,7 +64,7 @@ export class BakongVerifyService {
       const contentType = response.headers.get('content-type')
       
       if (contentType && contentType.includes('text/html')) {
-        console.error('❌ Bakong API error: IP may be blocked (Status:', response.status, ')')
+        console.error('❌ Bakong returned HTML (IP blocked)')
         return {
           success: false,
           status: 'pending',
@@ -74,6 +74,9 @@ export class BakongVerifyService {
       }
       
       const data = await response.json()
+      
+      // 🔥 Log the full Bakong response
+      console.log('📦 Bakong Response:', JSON.stringify(data, null, 2))
 
       // responseCode: 0 = success, 1 = failed/not found
       if (data.responseCode === 0 && data.data) {
