@@ -57,6 +57,7 @@ export class BakongVerifyService {
         },
         body: JSON.stringify({ md5 }),
       })
+      console.log('📡 SEU:', response)
 
       console.log('📡 Bakong API Response:', response.status)
       
@@ -64,7 +65,9 @@ export class BakongVerifyService {
       const contentType = response.headers.get('content-type')
       
       if (contentType && contentType.includes('text/html')) {
-        console.error('❌ Bakong returned HTML (IP blocked)')
+        const htmlText = await response.text()
+        console.error('❌ Bakong returned HTML instead of JSON')
+        console.error('📄 Full Bakong Response:', htmlText)
         return {
           success: false,
           status: 'pending',
