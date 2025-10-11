@@ -22,15 +22,16 @@ export interface BakongVerificationResult {
 
 export class BakongVerifyService {
   private readonly apiUrl = 'https://api-bakong.nbc.gov.kh/v1/check_transaction_by_md5'
-  private readonly accessToken: string
+  private readonly accessToken: string = ''
 
   constructor() {
     const token = process.env.BAKONG_ACCESS_TOKEN
     if (!token) {
-      console.warn('⚠️ BAKONG_ACCESS_TOKEN not set - verification will not work')
-      this.accessToken = ''
+      console.error('❌ BAKONG_ACCESS_TOKEN is not configured!')
+      console.error('Available env vars:', Object.keys(process.env).filter(k => k.includes('BAKONG')))
     } else {
       this.accessToken = token
+      console.log('✅ BAKONG_ACCESS_TOKEN is set (length:', token.length, ')')
     }
   }
 
@@ -59,6 +60,21 @@ export class BakongVerifyService {
       })
 
       console.log('📡 Bakong API Response Status:', response.status)
+      console.log('📡 Bakong API Response Headers:', Object.fromEntries(response.headers.entries()))
+      
+      // Check if response is HTML (error page)
+      const contentType = response.headers.get('content-type')
+      if (contentType && contentType.includes('text/html')) {
+        console.error('❌ Bakong returned HTML instead of JSON!')
+        const htmlText = await response.text()
+        console.error('HTML Response (first 500 chars):', htmlText.substring(0, 500))
+        return {
+          success: false,
+          status: 'pending',
+          error: 'bakong_api_error',
+          message: `Bakong API returned HTML error. Status: ${response.status}. This usually means invalid access token or API configuration issue.`,
+        }
+      }
       
       const data = await response.json()
 

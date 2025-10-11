@@ -157,7 +157,7 @@ export default function KHQRPaymentPage() {
       // If transaction not found (404), stop checking
       if (response.status === 404) {
         console.warn('⚠️ Transaction not found, stopping status checks')
-        alert('❌ DEBUG: Transaction not found (404). Transaction ID: ' + txnId)
+        console.error('❌ DEBUG: Transaction not found (404). Transaction ID:', txnId)
         if (statusCheckInterval.current) {
           clearInterval(statusCheckInterval.current)
           statusCheckInterval.current = null
@@ -167,26 +167,26 @@ export default function KHQRPaymentPage() {
       
       const data = await response.json()
       
-      // 🔥 DEBUG ALERT - Show what we got from API
+      // 🔥 DEBUG CONSOLE - Show what we got from API
       console.log('📦 Payment check response:', data)
-      alert(`🔍 DEBUG - Payment Status Check:\n\n` +
-        `Transaction ID: ${txnId}\n` +
-        `MD5 Hash: ${data.md5 || 'NOT FOUND IN RESPONSE'}\n` +
-        `Success: ${data.success}\n` +
-        `Status: ${data.status}\n` +
-        `Message: ${data.message || 'N/A'}\n` +
-        `Error: ${data.error || 'N/A'}\n` +
-        `Bakong Error: ${data.bakongError || 'N/A'}\n` +
-        `Bakong Message: ${data.bakongMessage || 'N/A'}\n` +
-        `Has Bakong Data: ${!!data.bakongData}\n\n` +
-        `🔍 EXPLANATION:\n` +
-        (data.bakongError === 'static_qr_not_supported' 
-          ? '⚠️ Individual KHQR account detected!\nBakong API cannot auto-verify personal accounts.\nOnly merchant accounts support auto-verification.\n\n' 
-          : '') +
-        (data.message?.includes('not found')
-          ? '⏳ Payment not detected by Bakong yet.\nEither you haven\'t paid, or Bakong is slow.\n\n'
-          : '') +
-        `Full Response: ${JSON.stringify(data, null, 2)}`)
+      console.log('🔍 DEBUG - Payment Status Check:')
+      console.log('  Transaction ID:', txnId)
+      console.log('  MD5 Hash:', data.md5 || 'NOT FOUND IN RESPONSE')
+      console.log('  Success:', data.success)
+      console.log('  Status:', data.status)
+      console.log('  Message:', data.message || 'N/A')
+      console.log('  Error:', data.error || 'N/A')
+      console.log('  Bakong Error:', data.bakongError || 'N/A')
+      console.log('  Bakong Message:', data.bakongMessage || 'N/A')
+      console.log('  Has Bakong Data:', !!data.bakongData)
+      
+      if (data.bakongError === 'static_qr_not_supported') {
+        console.warn('⚠️ Individual KHQR account detected! Bakong API cannot auto-verify personal accounts.')
+      }
+      if (data.message?.includes('not found')) {
+        console.warn('⏳ Payment not detected by Bakong yet.')
+      }
+      console.log('Full Response:', JSON.stringify(data, null, 2))
 
       // Check if still mounted before updating state
       if (!isMounted.current) {
@@ -196,7 +196,7 @@ export default function KHQRPaymentPage() {
 
       if (data.success && data.status === 'completed') {
         console.log('✅ Payment confirmed! Order created automatically on server.')
-        alert('✅ SUCCESS! Payment confirmed by Bakong API. Redirecting to orders...')
+        console.log('✅ SUCCESS! Payment confirmed by Bakong API. Redirecting to orders...')
         setPaymentStatus('success')
         
         // Clear interval IMMEDIATELY
@@ -219,7 +219,7 @@ export default function KHQRPaymentPage() {
         }, 1000)
       } else if (data.status === 'failed') {
         console.log('❌ Payment failed! Stopping checks...')
-        alert('❌ Payment verification FAILED! Reason: ' + (data.error || data.message || 'Unknown'))
+        console.error('❌ Payment verification FAILED! Reason:', data.error || data.message || 'Unknown')
         setPaymentStatus('failed')
         setError('Payment failed. Please try again.')
         
@@ -231,11 +231,11 @@ export default function KHQRPaymentPage() {
       } else {
         // Still pending
         console.log('⏳ Payment still pending...')
-        alert(`⏳ Still PENDING...\nStatus: ${data.status}\nMessage: ${data.message || 'Waiting for payment'}`)
+        console.log('⏳ Still PENDING... Status:', data.status, 'Message:', data.message || 'Waiting for payment')
       }
     } catch (err) {
       console.error('❌ Status Check Error:', err)
-      alert('❌ ERROR checking payment status:\n' + (err instanceof Error ? err.message : String(err)))
+      console.error('❌ ERROR checking payment status:', err instanceof Error ? err.message : String(err))
       // Don't stop interval on network errors, keep trying
     }
   }
