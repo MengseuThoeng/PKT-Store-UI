@@ -304,11 +304,28 @@ export async function GET(request: NextRequest) {
               }
               
               customerId = customer?.id
+            } else {
+              // Guest checkout - create customer without user_id
+              console.log('👤 Guest checkout - creating customer record')
+              const { data: guestCustomer } = await supabase
+                .from('customers')
+                .insert({
+                  user_id: null,
+                  name: transaction.customer_name || 'Guest',
+                  email: transaction.customer_email || 'guest@pkt-store.com',
+                  phone: transaction.customer_phone || '',
+                  address: metadata.customer_address || 'N/A',
+                })
+                .select('id')
+                .single()
+              
+              customerId = guestCustomer?.id
             }
             
             if (!customerId) {
-              console.error('❌ Could not determine customer_id')
+              console.error('❌ Could not create customer record')
             } else {
+              console.log('✅ Customer ID:', customerId)
               // Create order - Only when payment is PAID!
               const orderNumber = `ORD-${Date.now()}`
               const subtotal = parseFloat(transaction.amount)

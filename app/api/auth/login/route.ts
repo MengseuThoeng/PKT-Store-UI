@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     
     cookieStore.set('auth_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Set to true only if using HTTPS
       sameSite: 'lax',
       maxAge,
       path: '/',
