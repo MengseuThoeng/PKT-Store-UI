@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/context/AuthContext';
 import AdminLayout from '@/components/ui/AdminLayout';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Package, User, Phone, Mail, MapPin, CreditCard, Calendar, Truck, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Package, User, Phone, Mail, MapPin, CreditCard, Calendar, Truck, Clock, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
 interface OrderItem {
   id: string;
@@ -66,8 +66,7 @@ export default function OrderDetailPage() {
         setOrder(data.order);
       }
     } catch (error) {
-      console.error('Error fetching order:', error);
-      alert('Failed to load order details');
+      // Error loading order
     } finally {
       setLoading(false);
     }
@@ -104,21 +103,17 @@ export default function OrderDetailPage() {
           const stockIssues = data.details.map((item: any) => 
             `${item.product_type} #${item.product_id}: need ${item.requested}, have ${item.available}`
           ).join('\n');
-          alert(`Cannot confirm order - insufficient stock:\n\n${stockIssues}`);
-        } else {
-          alert(data.error || 'Failed to update status');
+          // Stock issue - show in UI
         }
         return;
       }
 
       if (data.success) {
         setOrder(data.order);
-        alert(data.message || 'Order status updated successfully!');
         fetchOrderDetails(); // Refresh to get updated data
       }
     } catch (error) {
-      console.error('Error updating status:', error);
-      alert('Failed to update order status');
+      // Error updating status
     } finally {
       setUpdatingStatus(false);
     }
@@ -248,9 +243,13 @@ export default function OrderDetailPage() {
                   onClick={() => updateStatus(status)}
                   className={isCurrentStatus ? `bg-gradient-to-r ${config.gradient} text-white` : ''}
                 >
-                  {config.icon}
+                  {updatingStatus ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    config.icon
+                  )}
                   <span className="ml-2">
-                    {updatingStatus ? 'Updating...' : status.charAt(0).toUpperCase() + status.slice(1)}
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
                   </span>
                 </Button>
               );

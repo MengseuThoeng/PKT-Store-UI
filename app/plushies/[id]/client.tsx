@@ -31,7 +31,6 @@ export default function PlushieDetailPage() {
           }
         }
       } catch (error) {
-        console.error('Failed to load plushie:', error)
       } finally {
         setIsLoading(false)
       }
@@ -53,7 +52,6 @@ export default function PlushieDetailPage() {
     notFound()
   }
 
-  console.log('Plushie image path:', plushie.image) // Debug log
 
   const handleAddToCart = () => {
     addItem({

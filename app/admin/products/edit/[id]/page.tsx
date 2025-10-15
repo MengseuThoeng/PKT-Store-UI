@@ -65,12 +65,10 @@ export default function EditProductPage() {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('File size must be less than 5MB');
       return;
     }
 
     if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
       return;
     }
 
@@ -83,7 +81,6 @@ export default function EditProductPage() {
       reader.readAsDataURL(file);
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Failed to upload image');
     } finally {
       setUploading(false);
     }
@@ -107,14 +104,11 @@ export default function EditProductPage() {
       const data = await response.json();
       
       if (data.success) {
-        alert('Product updated successfully!');
         router.push('/admin/products');
       } else {
-        alert(data.error || 'Failed to update product');
       }
     } catch (error) {
       console.error('Error updating product:', error);
-      alert('Error updating product');
     } finally {
       setSaving(false);
     }
@@ -133,14 +127,11 @@ export default function EditProductPage() {
       const data = await response.json();
       
       if (data.success) {
-        alert('Product deleted successfully!');
         router.push('/admin/products');
       } else {
-        alert(data.error || 'Failed to delete product');
       }
     } catch (error) {
       console.error('Error deleting product:', error);
-      alert('Error deleting product');
     }
   };
 

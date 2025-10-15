@@ -60,7 +60,6 @@ export default function AdminProductsPage() {
         setProducts(data.products);
       }
     } catch (error) {
-      console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
     }
@@ -77,13 +76,9 @@ export default function AdminProductsPage() {
       const data = await response.json();
       if (data.success) {
         setProducts(products.filter(p => p.id !== productId));
-        alert('Product deleted successfully!');
       } else {
-        alert('Failed to delete product');
       }
     } catch (error) {
-      console.error('Error deleting product:', error);
-      alert('Error deleting product');
     }
   };
 

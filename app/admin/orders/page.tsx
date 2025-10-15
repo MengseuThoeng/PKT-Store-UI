@@ -73,7 +73,6 @@ function AdminOrdersContent() {
         setOrders(data.orders);
       }
     } catch (error) {
-      console.error('Error fetching orders:', error);
     } finally {
       setLoading(false);
     }
@@ -93,13 +92,9 @@ function AdminOrdersContent() {
         setOrders(orders.map(order => 
           order.id === orderId ? { ...order, status: newStatus } : order
         ));
-        alert('Order status updated successfully!');
       } else {
-        alert('Failed to update order status');
       }
     } catch (error) {
-      console.error('Error updating order:', error);
-      alert('Error updating order status');
     }
   };
 

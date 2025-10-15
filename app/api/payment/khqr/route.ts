@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
       items,
     } = body
 
-    console.log('📥 KHQR Payment Request:', {
       amount,
       currency,
       customerName,
@@ -65,9 +64,7 @@ export async function POST(request: NextRequest) {
     const customerId = authInfo.customerId
     
     if (authInfo.authenticated) {
-      console.log('✅ Authenticated - Customer ID:', customerId, 'User ID:', userId)
     } else {
-      console.log('⚠️ Not authenticated - guest checkout')
     }
 
     const md5Hash = result.data?.md5
@@ -97,18 +94,13 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (dbError) {
-      console.error('❌ Database Error:', dbError)
       return NextResponse.json(
         { error: 'Failed to create transaction' },
         { status: 500 }
       )
     }
 
-    console.log('✅ Transaction saved to database:', transaction.id)
-    console.log('🔐 MD5:', md5Hash)
 
-    console.log('✅ Transaction saved to database:', transaction.id)
-    console.log('🔐 MD5:', md5Hash)
 
     return NextResponse.json({
       success: true,
@@ -117,7 +109,6 @@ export async function POST(request: NextRequest) {
       transactionId: transaction?.id || result.data?.md5,
     })
   } catch (error) {
-    console.error('❌ KHQR API Error:', error)
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Internal server error',
@@ -166,18 +157,15 @@ export async function GET(request: NextRequest) {
     }
 
     if (error || !transaction) {
-      console.error('❌ Transaction not found:', transactionId)
       return NextResponse.json(
         { error: 'Transaction not found' },
         { status: 404 }
       )
     }
 
-    console.log('✅ Found transaction:', transaction.id, 'Status:', transaction.status)
 
     // If already completed, return immediately
     if (transaction.status === 'completed') {
-      console.log('✅ Transaction already completed:', transactionId)
       return NextResponse.json({
         success: true,
         status: 'completed',
@@ -196,7 +184,6 @@ export async function GET(request: NextRequest) {
     const md5 = transaction.metadata?.md5 || transaction.transaction_id
 
     if (!md5) {
-      console.error('❌ No MD5 hash found for transaction:', transactionId)
       return NextResponse.json({
         success: true,
         status: transaction.status,
@@ -212,12 +199,10 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    console.log('🔍 Verifying payment with Bakong API, MD5:', md5)
 
     // Check with Bakong API
     const verification = await bakongVerifyService.checkTransactionByMD5(md5)
 
-    console.log('📋 Verification result:', {
       success: verification.success,
       status: verification.status,
       message: verification.message,
@@ -227,7 +212,6 @@ export async function GET(request: NextRequest) {
 
     // 🔥 Log detailed verification for production debugging
     if (!verification.success) {
-      console.log('⚠️ Bakong verification not successful:', {
         status: verification.status,
         message: verification.message,
         error: verification.error,
@@ -236,7 +220,6 @@ export async function GET(request: NextRequest) {
 
     // Update database if payment is completed
     if (verification.success && verification.status === 'completed') {
-      console.log('✅ Payment confirmed! Updating database...')
       
       const { error: updateError } = await supabase
         .from('payment_transactions')
@@ -252,13 +235,10 @@ export async function GET(request: NextRequest) {
         .eq('id', transaction.id)
 
       if (updateError) {
-        console.error('❌ Failed to update transaction:', updateError)
       } else {
-        console.log('✅ Transaction updated to completed')
         
         // 🔥 AUTO-CREATE ORDER IMMEDIATELY!
         try {
-          console.log('📦 Auto-creating order for transaction:', transaction.id)
           
           // Check if order already exists
           const { data: existingOrder } = await supabase
@@ -268,7 +248,6 @@ export async function GET(request: NextRequest) {
             .maybeSingle()
           
           if (existingOrder) {
-            console.log('✅ Order already exists:', existingOrder.order_number)
           } else {
             // Create order automatically
             const metadata = transaction.metadata as any || {}
@@ -287,7 +266,6 @@ export async function GET(request: NextRequest) {
               
               // If not found, create customer
               if (!customer) {
-                console.log('📝 Creating customer record for user_id:', transaction.user_id)
                 const { data: newCustomer } = await supabase
                   .from('customers')
                   .insert({
@@ -306,7 +284,6 @@ export async function GET(request: NextRequest) {
               customerId = customer?.id
             } else {
               // Guest checkout - create customer without user_id
-              console.log('👤 Guest checkout - creating customer record')
               const { data: guestCustomer } = await supabase
                 .from('customers')
                 .insert({
@@ -323,9 +300,7 @@ export async function GET(request: NextRequest) {
             }
             
             if (!customerId) {
-              console.error('❌ Could not create customer record')
             } else {
-              console.log('✅ Customer ID:', customerId)
               // Create order - Only when payment is PAID!
               const orderNumber = `ORD-${Date.now()}`
               const subtotal = parseFloat(transaction.amount)
@@ -353,9 +328,7 @@ export async function GET(request: NextRequest) {
                 .single()
               
               if (orderError) {
-                console.error('❌ Failed to create order:', orderError)
               } else {
-                console.log('✅ Order created automatically:', order.order_number)
                 
                 // Create order items
                 if (items.length > 0) {
@@ -375,16 +348,13 @@ export async function GET(request: NextRequest) {
                     .insert(orderItems)
                   
                   if (itemsError) {
-                    console.error('⚠️ Failed to create order items:', itemsError)
                   } else {
-                    console.log('✅ Order items created:', orderItems.length)
                   }
                 }
               }
             }
           }
         } catch (orderCreationError) {
-          console.error('❌ Order auto-creation failed:', orderCreationError)
           // Don't fail the payment verification even if order creation fails
         }
         
@@ -405,7 +375,6 @@ export async function GET(request: NextRequest) {
             transactionId: transaction.transaction_id,
           })
         } catch (telegramError) {
-          console.error('⚠️ Failed to send Telegram notification:', telegramError)
           // Don't fail the request if Telegram fails
         }
       }
@@ -427,7 +396,6 @@ export async function GET(request: NextRequest) {
 
     // Update to failed if verification failed
     if (verification.status === 'failed') {
-      console.log('❌ Payment failed! Updating database...')
       
       await supabase
         .from('payment_transactions')
@@ -450,7 +418,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Still pending
-    console.log('⏳ Payment still pending')
     return NextResponse.json({
       success: true,
       status: 'pending',
@@ -468,7 +435,6 @@ export async function GET(request: NextRequest) {
       bakongMessage: verification.message, // 🔥 Include Bakong message
     })
   } catch (error) {
-    console.error('❌ Status Check Error:', error)
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Internal server error',

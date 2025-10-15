@@ -81,7 +81,6 @@ export default function CheckoutPage() {
         router.push('/payment/cod')
       }
     } catch (error) {
-      console.error('Checkout error:', error)
     } finally {
       setIsLoading(false)
     }

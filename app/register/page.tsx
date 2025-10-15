@@ -155,7 +155,6 @@ export default function RegisterPage() {
     try {
       await sendOTP({ email: formData.email, type: 'email' })
       setError('')
-      alert('OTP resent! Check your email.')
     } catch (err) {
       setError('Failed to resend OTP')
     } finally {

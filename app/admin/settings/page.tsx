@@ -79,28 +79,24 @@ export default function AdminSettingsPage() {
     setLoading(true);
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    alert('Store settings saved successfully!');
     setLoading(false);
   };
 
   const handleSaveEmail = async () => {
     setLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    alert('Email settings saved successfully!');
     setLoading(false);
   };
 
   const handleSavePayment = async () => {
     setLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    alert('Payment settings saved successfully!');
     setLoading(false);
   };
 
   const handleSaveNotifications = async () => {
     setLoading(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    alert('Notification settings saved successfully!');
     setLoading(false);
   };
 

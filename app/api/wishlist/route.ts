@@ -27,7 +27,6 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching wishlist:', error);
       return NextResponse.json(
         { error: 'Failed to fetch wishlist' },
         { status: 500 }
@@ -60,7 +59,6 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Error in wishlist GET:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -131,7 +129,6 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error adding to wishlist:', error);
       return NextResponse.json(
         { error: 'Failed to add to wishlist' },
         { status: 500 }
@@ -145,7 +142,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Error in wishlist POST:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -188,7 +184,6 @@ export async function DELETE(request: NextRequest) {
       .eq('product_type', product_type);
 
     if (error) {
-      console.error('Error removing from wishlist:', error);
       return NextResponse.json(
         { error: 'Failed to remove from wishlist' },
         { status: 500 }
@@ -201,7 +196,6 @@ export async function DELETE(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Error in wishlist DELETE:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -120,13 +120,11 @@ function CartPageContent({
         setIsCheckoutModalOpen(false)
         
         // Show success message
-        alert(`🎉 Order placed successfully!\n\nOrder #${result.orderNumber}\n\n✅ Invoice downloaded\n📱 Telegram notifications sent\n\nThank you for shopping with PKT Store!`)
       } else {
         throw new Error('Failed to place order')
       }
     } catch (error) {
       console.error('Checkout error:', error)
-      alert('❌ Failed to place order. Please try again.')
     }
   }
 

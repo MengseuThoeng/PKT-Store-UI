@@ -70,7 +70,6 @@ export async function DELETE(request: NextRequest) {
       .eq('id', customerId);
 
     if (updateError) {
-      console.error('Error deleting account:', updateError);
       return NextResponse.json(
         { error: 'Failed to delete account' },
         { status: 500 }
@@ -99,7 +98,6 @@ export async function DELETE(request: NextRequest) {
     return response;
 
   } catch (error) {
-    console.error('Delete account error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

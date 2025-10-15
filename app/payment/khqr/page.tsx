@@ -126,12 +126,11 @@ export default function KHQRPaymentPage() {
       setTransactionId(data.transactionId)
       setLoading(false)
 
-      // Start checking payment status every 20 seconds
+      // Start checking payment status every 5 seconds
       statusCheckInterval.current = setInterval(() => {
         checkPaymentStatus(data.transactionId)
-      }, 20000) // Changed from 5000 to 20000 (20 seconds)
+      }, 5000)
     } catch (err) {
-      console.error('❌ QR Generation Error:', err)
       setError(err instanceof Error ? err.message : 'Failed to generate QR code')
       setLoading(false)
     }
@@ -148,12 +147,10 @@ export default function KHQRPaymentPage() {
         return
       }
 
-      console.log('🔍 Checking payment status...')
       const response = await fetch(`/api/payment/khqr?transactionId=${txnId}`)
       
       // If transaction not found (404), stop checking
       if (response.status === 404) {
-        console.error('❌ Transaction not found')
         if (statusCheckInterval.current) {
           clearInterval(statusCheckInterval.current)
           statusCheckInterval.current = null
@@ -162,7 +159,6 @@ export default function KHQRPaymentPage() {
       }
       
       const data = await response.json()
-      console.log('📦 Status:', data.status)
 
       // Check if still mounted before updating state
       if (!isMounted.current) {
@@ -170,7 +166,6 @@ export default function KHQRPaymentPage() {
       }
 
       if (data.success && data.status === 'completed') {
-        console.log('✅ Payment confirmed! Redirecting...')
         setPaymentStatus('success')
         
         // Clear interval IMMEDIATELY
@@ -187,7 +182,6 @@ export default function KHQRPaymentPage() {
           router.push('/orders?payment=success')
         }, 1000)
       } else if (data.status === 'failed') {
-        console.error('❌ Payment failed')
         setPaymentStatus('failed')
         setError('Payment failed. Please try again.')
         
@@ -195,12 +189,9 @@ export default function KHQRPaymentPage() {
           clearInterval(statusCheckInterval.current)
           statusCheckInterval.current = null
         }
-      } else {
-        console.log('⏳ Still waiting for payment...')
       }
     } catch (err) {
-      console.error('❌ Error checking payment:', err)
-      // Don't stop interval on network errors, keep trying
+      // Keep trying on network errors
     }
   }
 

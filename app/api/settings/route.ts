@@ -34,7 +34,6 @@ export async function GET(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error fetching customer settings:', error);
       return NextResponse.json(
         { error: 'Failed to fetch settings' },
         { status: 500 }
@@ -55,7 +54,6 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Settings GET error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -111,7 +109,6 @@ export async function PUT(request: NextRequest) {
       .eq('id', customerId);
 
     if (error) {
-      console.error('Error updating settings:', error);
       return NextResponse.json(
         { error: 'Failed to update settings' },
         { status: 500 }
@@ -124,7 +121,6 @@ export async function PUT(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Settings PUT error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -50,7 +50,6 @@ export default function FigureDetailsClient({ params }: { params: { id: string }
           }
         }
       } catch (error) {
-        console.error('Failed to load figure:', error)
       } finally {
         setIsLoading(false)
       }

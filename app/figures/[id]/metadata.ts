@@ -104,7 +104,6 @@ export async function generateMetadata({
       },
     }
   } catch (error) {
-    console.error('Error fetching figure metadata:', error)
     return {
       title: 'Figure Not Found | PKT Store',
       description: 'The requested figure could not be found.'

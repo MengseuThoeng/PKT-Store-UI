@@ -66,7 +66,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...plushieUrls,
     ]
   } catch (error) {
-    console.error('Error generating sitemap:', error)
     // Return just static pages if API fails
     return staticUrls
   }

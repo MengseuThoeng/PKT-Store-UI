@@ -48,13 +48,11 @@ export default function AddProductPage() {
 
     // Check file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('File size must be less than 5MB');
       return;
     }
 
     // Check file type
     if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file');
       return;
     }
 
@@ -73,7 +71,6 @@ export default function AddProductPage() {
       
     } catch (error) {
       console.error('Error uploading image:', error);
-      alert('Failed to upload image');
     } finally {
       setUploading(false);
     }
@@ -97,14 +94,11 @@ export default function AddProductPage() {
       const data = await response.json();
       
       if (data.success) {
-        alert('Product added successfully!');
         router.push('/admin/products');
       } else {
-        alert(data.error || 'Failed to add product');
       }
     } catch (error) {
       console.error('Error adding product:', error);
-      alert('Error adding product');
     } finally {
       setLoading(false);
     }

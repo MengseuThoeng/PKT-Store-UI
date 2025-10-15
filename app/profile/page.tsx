@@ -98,7 +98,6 @@ export default function ProfilePage() {
         setAddresses(data.addresses)
       }
     } catch (error) {
-      console.error('Error fetching addresses:', error)
     }
   }
 

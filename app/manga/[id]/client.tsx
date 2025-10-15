@@ -27,7 +27,6 @@ export default function MangaDetailPage() {
           }
         }
       } catch (error) {
-        console.error('Failed to load manga:', error)
       } finally {
         setIsLoading(false)
       }
@@ -49,15 +48,12 @@ export default function MangaDetailPage() {
     notFound()
   }
 
-  console.log('Manga image path:', manga.image) // Debug log
 
   const handleAddToCart = () => {
-    console.log(`Added ${quantity} of ${manga.title} to cart`)
   }
 
   const handleToggleWishlist = () => {
     setIsInWishlist(!isInWishlist)
-    console.log(`${isInWishlist ? "Removed from" : "Added to"} wishlist: ${manga.title}`)
   }
 
   const handleShare = () => {

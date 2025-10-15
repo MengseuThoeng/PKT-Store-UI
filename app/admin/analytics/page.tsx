@@ -70,7 +70,6 @@ export default function AdminAnalyticsPage() {
         setAnalytics(data.analytics);
       }
     } catch (error) {
-      console.error('Error fetching analytics:', error);
     } finally {
       setLoading(false);
     }

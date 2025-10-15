@@ -73,7 +73,6 @@ export default function SettingsPage() {
         setSettings(data.settings);
       }
     } catch (error) {
-      console.error('Error fetching settings:', error);
       addToast('Failed to load settings', 'error');
     } finally {
       setLoading(false);
@@ -107,7 +106,6 @@ export default function SettingsPage() {
 
       addToast('Settings saved successfully', 'success');
     } catch (error) {
-      console.error('Error saving settings:', error);
       addToast(error instanceof Error ? error.message : 'Failed to save settings', 'error');
     } finally {
       setSaving(false);
@@ -146,7 +144,6 @@ export default function SettingsPage() {
       }, 2000);
 
     } catch (error) {
-      console.error('Error deleting account:', error);
       addToast(error instanceof Error ? error.message : 'Failed to delete account', 'error');
     } finally {
       setDeleting(false);
