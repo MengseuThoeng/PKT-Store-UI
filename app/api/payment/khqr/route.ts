@@ -23,12 +23,6 @@ export async function POST(request: NextRequest) {
       items,
     } = body
 
-      amount,
-      currency,
-      customerName,
-      billNumber,
-    })
-
     // Validate amount
     if (!amount || amount <= 0) {
       return NextResponse.json(
@@ -202,21 +196,6 @@ export async function GET(request: NextRequest) {
 
     // Check with Bakong API
     const verification = await bakongVerifyService.checkTransactionByMD5(md5)
-
-      success: verification.success,
-      status: verification.status,
-      message: verification.message,
-      error: verification.error,
-      hasData: !!verification.data,
-    })
-
-    // 🔥 Log detailed verification for production debugging
-    if (!verification.success) {
-        status: verification.status,
-        message: verification.message,
-        error: verification.error,
-      })
-    }
 
     // Update database if payment is completed
     if (verification.success && verification.status === 'completed') {
