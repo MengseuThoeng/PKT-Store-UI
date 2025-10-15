@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
     // your project has type errors.
     ignoreBuildErrors: true,
   },
+  // Enable standalone output for Docker
+  output: 'standalone',
 };
 
 export default nextConfig;
