@@ -33,11 +33,13 @@ export async function POST(request: Request) {
 
     // Generate OTP
     const otp = generateOTP()
+    console.log('📧 Generated OTP for', email, '- Code:', otp, '- Type:', type)
     await saveOTP(email, otp, type)
 
     // Send OTP via email
     const emailType = type === 'password_reset' ? 'password_reset' : 'registration'
     await sendOTPEmail(email, otp, emailType)
+    console.log('✅ OTP sent successfully to', email)
 
     return NextResponse.json({
       success: true,

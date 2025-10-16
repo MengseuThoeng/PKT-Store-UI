@@ -93,6 +93,13 @@ export async function verifyOTP(
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = createServerSupabaseClient()
 
+  console.log('🔎 Checking OTP in database:', { 
+    email, 
+    code: code.substring(0, 2) + '****', 
+    type,
+    currentTime: new Date().toISOString()
+  })
+
   // Find unused OTP that hasn't expired
   const { data: otpData, error } = await supabase
     .from('otp_codes')
@@ -107,8 +114,37 @@ export async function verifyOTP(
     .single()
 
   if (error || !otpData) {
-    return { success: false, error: 'Invalid or expired OTP code' }
+    console.error('❌ OTP not found or expired:', error)
+    
+    // Check if OTP exists but is expired/used
+    const { data: allOtps } = await supabase
+      .from('otp_codes')
+      .select('*')
+      .eq('email', email)
+      .eq('code', code)
+      .eq('type', type)
+      .order('created_at', { ascending: false })
+    
+    if (allOtps && allOtps.length > 0) {
+      const otp = allOtps[0]
+      console.log('Found OTP but:', {
+        used: otp.used,
+        expired: new Date(otp.expires_at) < new Date(),
+        expiresAt: otp.expires_at
+      })
+      
+      if (otp.used) {
+        return { success: false, error: 'This code has already been used. Please request a new one.' }
+      }
+      if (new Date(otp.expires_at) < new Date()) {
+        return { success: false, error: 'Code expired. Please request a new one.' }
+      }
+    }
+    
+    return { success: false, error: 'Invalid OTP code' }
   }
+
+  console.log('✅ OTP found and valid, marking as used')
 
   // Mark OTP as used
   await supabase

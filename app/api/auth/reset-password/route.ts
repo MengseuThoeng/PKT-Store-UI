@@ -23,14 +23,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify OTP code
+    console.log('🔍 Verifying OTP:', { email, code: code.substring(0, 2) + '****', type: 'password_reset' })
     const otpVerification = await verifyOTP(email, code, 'password_reset')
     
     if (!otpVerification.success) {
+      console.error('❌ OTP verification failed:', otpVerification.error)
       return NextResponse.json(
         { success: false, error: otpVerification.error || 'Invalid or expired code' },
         { status: 400 }
       )
     }
+    console.log('✅ OTP verified successfully')
 
     const supabase = createServerSupabaseClient()
 
