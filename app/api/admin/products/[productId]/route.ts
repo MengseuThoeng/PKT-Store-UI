@@ -89,7 +89,7 @@ export async function PUT(
     }
 
     const productData = await request.json();
-    const { type, ...data } = productData;
+    const { type, image_url, name, ...restData } = productData;
     const { productId } = await params;
 
     if (!type) {
@@ -98,17 +98,36 @@ export async function PUT(
 
     const supabase = createServerSupabaseClient();
     let table = '';
+    let updateData: any = {};
     
-    if (type === 'figure') table = 'figures';
-    else if (type === 'manga') table = 'manga';
-    else if (type === 'plushie') table = 'plushies';
-    else {
+    if (type === 'figure') {
+      table = 'figures';
+      updateData = {
+        name,
+        image: image_url,
+        ...restData,
+      };
+    } else if (type === 'manga') {
+      table = 'manga';
+      updateData = {
+        title: name,
+        image: image_url,
+        ...restData,
+      };
+    } else if (type === 'plushie') {
+      table = 'plushies';
+      updateData = {
+        name,
+        image_url,
+        ...restData,
+      };
+    } else {
       return NextResponse.json({ error: 'Invalid product type' }, { status: 400 });
     }
 
     const { data: updatedProduct, error } = await supabase
       .from(table)
-      .update(data)
+      .update(updateData)
       .eq('id', productId)
       .select()
       .single();

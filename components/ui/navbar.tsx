@@ -14,6 +14,7 @@ import {
   Package,
   Settings,
   UserCircle,
+  LayoutDashboard,
 } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -249,6 +250,18 @@ export default function Navbar() {
 
                       {/* Menu Items */}
                       <div className="p-2">
+                        {user?.isAdmin && (
+                          <>
+                            <Link href="/admin" onClick={() => setShowUserMenu(false)}>
+                              <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-pink-50 rounded-lg transition-colors text-left">
+                                <LayoutDashboard className="w-5 h-5 text-pink-600" />
+                                <span className="font-medium text-gray-700">Dashboard</span>
+                              </button>
+                            </Link>
+                            <div className="border-t border-gray-200 my-2"></div>
+                          </>
+                        )}
+                        
                         <Link href="/profile" onClick={() => setShowUserMenu(false)}>
                           <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-pink-50 rounded-lg transition-colors text-left">
                             <UserCircle className="w-5 h-5 text-pink-600" />

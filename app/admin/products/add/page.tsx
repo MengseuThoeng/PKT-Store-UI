@@ -66,19 +66,35 @@ export default function AddProductPage() {
     try {
       setUploading(true);
 
-      // Convert to base64 for preview
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image_url: reader.result as string });
-        toast.success('Image uploaded successfully');
-      };
-      reader.readAsDataURL(file);
+      // Create a unique filename
+      const timestamp = Date.now();
+      const randomString = Math.random().toString(36).substring(2, 15);
+      const fileExtension = file.name.split('.').pop();
+      const fileName = `${formData.type}-${timestamp}-${randomString}.${fileExtension}`;
 
-      // TODO: Upload to actual storage (Supabase Storage, Cloudinary, etc.)
-      // For now, we'll use base64 as a temporary solution
+      // Upload to Supabase Storage
+      const formDataToUpload = new FormData();
+      formDataToUpload.append('file', file);
+      formDataToUpload.append('fileName', fileName);
+      formDataToUpload.append('bucket', 'products'); // We'll create this bucket
+
+      const uploadResponse = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formDataToUpload,
+      });
+
+      const uploadData = await uploadResponse.json();
+
+      if (uploadResponse.ok && uploadData.url) {
+        setFormData({ ...formData, image_url: uploadData.url });
+        toast.success('Image uploaded successfully');
+      } else {
+        throw new Error(uploadData.error || 'Upload failed');
+      }
       
-    } catch (error) {
-      toast.error('Failed to upload image');
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      toast.error(error.message || 'Failed to upload image');
     } finally {
       setUploading(false);
     }

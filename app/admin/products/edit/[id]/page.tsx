@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/context/AuthContext';
 import AdminLayout from '@/components/ui/AdminLayout';
 import { ArrowLeft, Save, Upload, Package, DollarSign, Hash, Image as ImageIcon, Star, Trash2, X } from 'lucide-react';
@@ -11,6 +11,7 @@ import { toast, Toaster } from 'sonner';
 export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -35,7 +36,8 @@ export default function EditProductPage() {
 
   const fetchProduct = async () => {
     try {
-      const response = await fetch(`/api/admin/products/${params.id}`);
+      const type = searchParams.get('type') || 'figure';
+      const response = await fetch(`/api/admin/products/${params.id}?type=${type}`);
       const data = await response.json();
       
       if (data.success && data.product) {
@@ -77,12 +79,28 @@ export default function EditProductPage() {
 
     try {
       setUploading(true);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image_url: reader.result as string });
+      
+      const uploadFormData = new FormData();
+      uploadFormData.append('file', file);
+      uploadFormData.append('type', formData.type);
+
+      const uploadResponse = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: uploadFormData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const uploadData = await uploadResponse.json();
+      
+      if (uploadData.success && uploadData.url) {
+        setFormData({ ...formData, image_url: uploadData.url });
         toast.success('Image uploaded successfully');
-      };
-      reader.readAsDataURL(file);
+      } else {
+        throw new Error(uploadData.error || 'Upload failed');
+      }
     } catch (error) {
       toast.error('Failed to upload image');
     } finally {
@@ -126,7 +144,8 @@ export default function EditProductPage() {
     }
 
     try {
-      const response = await fetch(`/api/admin/products/${params.id}`, {
+      const type = searchParams.get('type') || formData.type || 'figure';
+      const response = await fetch(`/api/admin/products/${params.id}?type=${type}`, {
         method: 'DELETE',
       });
 
