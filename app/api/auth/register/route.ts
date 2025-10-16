@@ -9,11 +9,8 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { name, email, phone, password, address } = body
 
-    console.log('📝 Registration attempt:', { name, email, phone: phone ? '***' : 'none', hasPassword: !!password })
-
     // Validation
     if (!name || !email || !password) {
-      console.log('❌ Validation failed: Missing fields')
       return NextResponse.json(
         { success: false, error: 'Name, email, and password are required' },
         { status: 400 }
@@ -21,7 +18,6 @@ export async function POST(request: Request) {
     }
 
     if (!isValidEmail(email)) {
-      console.log('❌ Validation failed: Invalid email format')
       return NextResponse.json(
         { success: false, error: 'Invalid email format' },
         { status: 400 }
@@ -30,14 +26,11 @@ export async function POST(request: Request) {
 
     const passwordValidation = isValidPassword(password)
     if (!passwordValidation.valid) {
-      console.log('❌ Validation failed: Weak password -', passwordValidation.message)
       return NextResponse.json(
         { success: false, error: passwordValidation.message },
         { status: 400 }
       )
     }
-
-    console.log('✅ Validation passed, checking database...')
 
     const supabase = createServerSupabaseClient()
 
@@ -49,14 +42,11 @@ export async function POST(request: Request) {
       .single()
 
     if (existingUser) {
-      console.log('❌ Email already registered:', email)
       return NextResponse.json(
         { success: false, error: 'Email already registered' },
         { status: 400 }
       )
     }
-
-    console.log('✅ Email available, creating user...')
 
     // Hash password
     const passwordHash = await hashPassword(password)
@@ -67,8 +57,8 @@ export async function POST(request: Request) {
       .insert({
         name,
         email,
-        phone: phone || null,
-        address: address || null,
+        phone: phone || 'N/A',
+        address: address || 'Cambodia',
         password_hash: passwordHash,
         is_verified: false,
         email_verified: false,
@@ -78,7 +68,6 @@ export async function POST(request: Request) {
       .single()
 
     if (createError) {
-      console.error('Error creating user:', createError)
       return NextResponse.json(
         { success: false, error: 'Failed to create account' },
         { status: 500 }
@@ -105,7 +94,6 @@ export async function POST(request: Request) {
       },
     })
   } catch (error: any) {
-    console.error('Registration error:', error)
     return NextResponse.json(
       { success: false, error: 'Registration failed' },
       { status: 500 }
