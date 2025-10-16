@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/context/AuthContext';
 import AdminLayout from '@/components/ui/AdminLayout';
 import { ArrowLeft, Save, Upload, Package, DollarSign, Hash, Image as ImageIcon, Star, X } from 'lucide-react';
 import Link from 'next/link';
+import { toast, Toaster } from 'sonner';
 
 export default function AddProductPage() {
   const router = useRouter();
@@ -14,6 +15,10 @@ export default function AddProductPage() {
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
+    title: '', // for manga
+    series: '', // for figures
+    character: '', // for figures
+    author: '', // for manga
     description: '',
     price: '',
     stock_count: '',
@@ -48,11 +53,13 @@ export default function AddProductPage() {
 
     // Check file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size must be less than 5MB');
       return;
     }
 
     // Check file type
     if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
       return;
     }
 
@@ -63,6 +70,7 @@ export default function AddProductPage() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData({ ...formData, image_url: reader.result as string });
+        toast.success('Image uploaded successfully');
       };
       reader.readAsDataURL(file);
 
@@ -70,7 +78,7 @@ export default function AddProductPage() {
       // For now, we'll use base64 as a temporary solution
       
     } catch (error) {
-      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
     } finally {
       setUploading(false);
     }
@@ -94,11 +102,15 @@ export default function AddProductPage() {
       const data = await response.json();
       
       if (data.success) {
-        router.push('/admin/products');
+        toast.success('Product created successfully!');
+        setTimeout(() => {
+          router.push('/admin/products');
+        }, 1000);
       } else {
+        toast.error(data.error || data.details || 'Failed to create product');
       }
     } catch (error) {
-      console.error('Error adding product:', error);
+      toast.error('Error creating product. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -106,6 +118,7 @@ export default function AddProductPage() {
 
   return (
     <AdminLayout>
+      <Toaster position="top-right" richColors />
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 rounded-2xl shadow-xl p-8 text-white">
@@ -143,6 +156,70 @@ export default function AddProductPage() {
                   placeholder="Enter product name"
                 />
               </div>
+
+              {/* Conditional Fields for Figures */}
+              {formData.type === 'figure' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Series *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.series}
+                      onChange={(e) => setFormData({ ...formData, series: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                      placeholder="e.g., One Piece, Naruto"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Character *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.character}
+                      onChange={(e) => setFormData({ ...formData, character: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                      placeholder="e.g., Luffy, Naruto"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* Conditional Fields for Manga */}
+              {formData.type === 'manga' && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Title *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                      placeholder="Manga title"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Author *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.author}
+                      onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                      placeholder="Author name"
+                    />
+                  </div>
+                </>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">

@@ -112,17 +112,55 @@ export async function POST(request: NextRequest) {
     }
 
     const productData = await request.json();
-    const { type, ...data } = productData;
+    console.log('📦 Received product data:', productData);
+    
+    const { type, image_url, name, title, series, character, author, description, price, stock_count, is_featured } = productData;
 
     const supabase = createServerSupabaseClient();
     
     let table = '';
-    if (type === 'figure') table = 'figures';
-    else if (type === 'manga') table = 'manga';
-    else if (type === 'plushie') table = 'plushies';
-    else {
+    let data: any = {};
+    
+    // Map fields to the correct columns based on product type
+    if (type === 'figure') {
+      table = 'figures';
+      data = {
+        name,
+        series,
+        character,
+        description,
+        price,
+        stock_count,
+        is_featured,
+        image: image_url, // figures table uses 'image' column
+      };
+    } else if (type === 'manga') {
+      table = 'manga';
+      data = {
+        title: title || name, // manga uses 'title' instead of 'name'
+        author,
+        description,
+        price,
+        stock_count,
+        is_featured,
+        image: image_url, // manga table uses 'image' column
+      };
+    } else if (type === 'plushie') {
+      table = 'plushies';
+      data = {
+        name,
+        description,
+        price,
+        stock_count,
+        is_featured,
+        image_url: image_url, // plushies table uses 'image_url' column
+      };
+    } else {
       return NextResponse.json({ error: 'Invalid product type' }, { status: 400 });
     }
+
+    console.log('🗄️ Inserting into table:', table);
+    console.log('📝 Data to insert:', data);
 
     const { data: newProduct, error } = await supabase
       .from(table)
@@ -131,9 +169,9 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error creating product:', error);
+      console.error('❌ Database error:', error);
       return NextResponse.json(
-        { error: 'Failed to create product' },
+        { error: 'Failed to create product', details: error.message, code: error.code },
         { status: 500 }
       );
     }
@@ -144,9 +182,9 @@ export async function POST(request: NextRequest) {
       message: 'Product created successfully',
     });
   } catch (error: any) {
-    console.error('Error in create product API:', error);
+    console.error('❌ Error in create product API:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: error.message },
       { status: 500 }
     );
   }

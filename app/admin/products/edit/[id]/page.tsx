@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/context/AuthContext';
 import AdminLayout from '@/components/ui/AdminLayout';
 import { ArrowLeft, Save, Upload, Package, DollarSign, Hash, Image as ImageIcon, Star, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
+import { toast, Toaster } from 'sonner';
 
 export default function EditProductPage() {
   const router = useRouter();
@@ -65,10 +66,12 @@ export default function EditProductPage() {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
+      toast.error('File size must be less than 5MB');
       return;
     }
 
     if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
       return;
     }
 
@@ -77,10 +80,11 @@ export default function EditProductPage() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData({ ...formData, image_url: reader.result as string });
+        toast.success('Image uploaded successfully');
       };
       reader.readAsDataURL(file);
     } catch (error) {
-      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
     } finally {
       setUploading(false);
     }
@@ -104,11 +108,13 @@ export default function EditProductPage() {
       const data = await response.json();
       
       if (data.success) {
-        router.push('/admin/products');
+        toast.success('Product updated successfully!');
+        setTimeout(() => router.push('/admin/products'), 1000);
       } else {
+        toast.error(data.error || 'Failed to update product');
       }
     } catch (error) {
-      console.error('Error updating product:', error);
+      toast.error('Error updating product');
     } finally {
       setSaving(false);
     }
@@ -127,11 +133,13 @@ export default function EditProductPage() {
       const data = await response.json();
       
       if (data.success) {
-        router.push('/admin/products');
+        toast.success('Product deleted successfully!');
+        setTimeout(() => router.push('/admin/products'), 1000);
       } else {
+        toast.error(data.error || 'Failed to delete product');
       }
     } catch (error) {
-      console.error('Error deleting product:', error);
+      toast.error('Error deleting product');
     }
   };
 
@@ -150,6 +158,7 @@ export default function EditProductPage() {
 
   return (
     <AdminLayout>
+      <Toaster position="top-right" richColors />
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 rounded-2xl shadow-xl p-8 text-white">

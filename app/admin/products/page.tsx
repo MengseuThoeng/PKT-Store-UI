@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import AdminLayout from '@/components/ui/AdminLayout';
+import { toast, Toaster } from 'sonner';
 import { 
   Plus, 
   Edit, 
@@ -58,8 +59,11 @@ export default function AdminProductsPage() {
       const data = await response.json();
       if (data.success) {
         setProducts(data.products);
+      } else {
+        toast.error('Failed to fetch products');
       }
     } catch (error) {
+      toast.error('Error loading products');
     } finally {
       setLoading(false);
     }
@@ -76,9 +80,12 @@ export default function AdminProductsPage() {
       const data = await response.json();
       if (data.success) {
         setProducts(products.filter(p => p.id !== productId));
+        toast.success('Product deleted successfully!');
       } else {
+        toast.error('Failed to delete product');
       }
     } catch (error) {
+      toast.error('Error deleting product');
     }
   };
 
@@ -136,6 +143,7 @@ export default function AdminProductsPage() {
 
   return (
     <AdminLayout>
+      <Toaster position="top-right" richColors />
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
