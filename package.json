@@ -24,7 +24,7 @@
     "keen-slider": "^6.8.6",
     "lucide-react": "^0.526.0",
     "motion": "^12.23.9",
-    "next": "15.4.4",
+    "next": "15.4.10",
     "nodemailer": "^7.0.9",
     "qrcode": "^1.5.4",
     "react": "19.1.0",
